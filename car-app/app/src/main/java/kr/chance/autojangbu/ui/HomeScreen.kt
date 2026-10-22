@@ -16,6 +16,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
@@ -41,6 +43,7 @@ import java.time.YearMonth
 import java.time.ZoneId
 import java.util.Locale
 import kr.chance.autojangbu.data.Category
+import kr.chance.autojangbu.data.DriverEntry
 import kr.chance.autojangbu.data.LedgerExport
 import kr.chance.autojangbu.data.Trip
 import kr.chance.autojangbu.data.TripStore
@@ -148,6 +151,9 @@ private fun ProfileDialog(profile: TripStore.Profile, onDismiss: () -> Unit) {
             textStyle = MaterialTheme.typography.bodyLarge, modifier = Modifier.fillMaxWidth())
     AlertDialog(
         onDismissRequest = onDismiss,
+        // 차 화면은 넓으므로 기본 폭(좁음) 대신 넓게 쓴다.
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+        modifier = Modifier.widthIn(max = 1000.dp).fillMaxWidth(0.62f),
         title = { Text("운행기록부 정보", style = MaterialTheme.typography.headlineSmall) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -162,9 +168,10 @@ private fun ProfileDialog(profile: TripStore.Profile, onDismiss: () -> Unit) {
                     Box(Modifier.weight(1f)) { field("자동차등록번호", p.plate) { p = p.copy(plate = it) } }
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Box(Modifier.weight(1f)) { field("성명", p.name) { p = p.copy(name = it) } }
-                    Box(Modifier.weight(1f)) { field("부서(없으면 비워 두세요)", p.department) { p = p.copy(department = it) } }
+                    Box(Modifier.weight(1f)) { field("기본 사용자 성명", p.name) { p = p.copy(name = it) } }
+                    Box(Modifier.weight(1f)) { field("부서(선택)", p.department) { p = p.copy(department = it) } }
                 }
+                DriversSection()
             }
         },
         confirmButton = {
@@ -180,6 +187,45 @@ private fun ProfileDialog(profile: TripStore.Profile, onDismiss: () -> Unit) {
         },
         dismissButton = { OutlinedButton(onClick = onDismiss) { Text("취소", style = MaterialTheme.typography.labelLarge) } },
     )
+}
+
+/** 한 차를 여러 사람이 쓸 때: 각자 맞춰 둔 시트 위치를 기억해 출발할 때 운전자를 알아본다. */
+@Composable
+private fun DriversSection() {
+    val drivers by TripStore.drivers.collectAsStateWithLifecycle()
+    val pose by TripStore.currentPose.collectAsStateWithLifecycle()
+    var name by remember { mutableStateOf("") }
+    var dept by remember { mutableStateOf("") }
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text("운전자 여러 명(시트 위치로 자동 구분)", style = MaterialTheme.typography.titleLarge)
+        Text("운전자가 자기 자세로 시트를 맞춘 뒤 등록하면, 출발할 때 시트 위치로 누가 운전하는지 알아보고 사용자 칸을 채웁니다.",
+            style = MaterialTheme.typography.bodyMedium, color = Palette.muted)
+        drivers.forEach { d ->
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("${listOf(d.department, d.name).filter { it.isNotBlank() }.joinToString(" ")}  ·  시트 ${d.pose.foreAft}/${d.pose.backrest}/${d.pose.height}",
+                    style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+                OutlinedButton(onClick = { TripStore.saveDrivers(drivers - d) }) { Text("지우기") }
+            }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            OutlinedTextField(name, { name = it }, label = { Text("운전자 성명") }, singleLine = true,
+                textStyle = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+            OutlinedTextField(dept, { dept = it }, label = { Text("부서") }, singleLine = true,
+                textStyle = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+        }
+        val p = pose
+        Button(
+            onClick = { p?.let { TripStore.saveDrivers(drivers + DriverEntry(name.trim(), dept.trim(), it)); name = ""; dept = "" } },
+            enabled = p != null && p.isKnown && name.isNotBlank(),
+            modifier = Modifier.heightIn(min = 64.dp),
+        ) {
+            Text(when {
+                p == null -> "시트 위치를 읽는 중…"
+                !p.isKnown -> "이 차에서는 시트 위치를 읽을 수 없어요"
+                else -> "지금 시트 위치로 등록 (앞뒤 ${p.foreAft} · 등받이 ${p.backrest} · 높이 ${p.height})"
+            }, style = MaterialTheme.typography.labelLarge)
+        }
+    }
 }
 
 @Composable
@@ -339,7 +385,8 @@ private fun TripRow(trip: Trip) {
             Column(Modifier.weight(1f)) {
                 Text("${dayFmt.format(trip.startMs)} ${timeFmt.format(trip.startMs)}–${timeFmt.format(trip.endMs)}",
                     style = MaterialTheme.typography.bodyLarge)
-                Text("계기판 ${odo(trip.startOdoKm)} → ${odo(trip.endOdoKm)}km",
+                val driver = if (trip.driverName.isNotBlank()) " · 운전 ${trip.driverName}" else ""
+                Text("계기판 ${odo(trip.startOdoKm)} → ${odo(trip.endOdoKm)}km$driver",
                     style = MaterialTheme.typography.bodyMedium, color = Palette.muted)
                 if (trip.memo.isNotBlank()) {
                     Text("메모: ${trip.memo}", style = MaterialTheme.typography.bodyMedium, color = Palette.sign)

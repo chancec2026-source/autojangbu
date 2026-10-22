@@ -24,8 +24,10 @@ object ShareClient {
         val rows = JSONArray()
         sorted.forEach { t ->
             val c = t.effectiveCategory
+            val (dept, name) = LedgerExport.user(t, profile)
             rows.put(JSONObject()
                 .put("date", day.format(t.startMs))
+                .put("user", listOf(dept, name).filter { it.isNotBlank() }.joinToString(" "))
                 .put("startKm", t.startOdoKm)
                 .put("endKm", t.endOdoKm)
                 .put("km", t.distanceKm)

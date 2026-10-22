@@ -9,6 +9,8 @@ import java.time.LocalTime
 import java.time.ZoneId
 import kotlin.random.Random
 import kr.chance.autojangbu.data.Category
+import kr.chance.autojangbu.data.DriverEntry
+import kr.chance.autojangbu.data.SeatPose
 import kr.chance.autojangbu.data.Trip
 import kr.chance.autojangbu.data.TripStore
 import kr.chance.autojangbu.data.suggestCategory
@@ -22,6 +24,7 @@ class DemoSeedReceiver : BroadcastReceiver() {
         TripStore.init(context)
         when (intent.action) {
             "kr.chance.autojangbu.DEMO_CLEAR" -> TripStore.replaceAll(emptyList())
+            "kr.chance.autojangbu.DEMO_PROBE_SEAT" -> probeSeat(context)
             "kr.chance.autojangbu.DEMO_SEED" -> {
                 // 마지막 예시 운행이 지금 차 계기판 값(--ef odo)에서 끝나도록 거리 전체를 옮긴다.
                 val trips = sample(LocalDate.now())
@@ -31,8 +34,26 @@ class DemoSeedReceiver : BroadcastReceiver() {
                 // 장부 머리말 예시(실제 업체 정보 아님)
                 TripStore.saveProfile(TripStore.Profile(name = "대표", company = "예시상사(예시)", bizNo = "000-00-00000",
                     carModel = "그랜저", plate = "12가3456"))
+                // 운전자 두 명 예시(시트 앞뒤/등받이/높이)
+                TripStore.saveDrivers(listOf(
+                    DriverEntry("대표", "", SeatPose(60, 40, 50)),
+                    DriverEntry("김과장", "영업팀", SeatPose(30, 45, 70)),
+                ))
             }
         }
+    }
+
+    /** 시트 위치 값과 지원 범위를 로그로 남긴다(에뮬레이터 점검용). */
+    private fun probeSeat(context: Context) {
+        val v = ai.pleos.playground.vehicle.Vehicle(context.applicationContext).apply { initialize() }
+        val seat = v.getSeat()
+        ai.pleos.playground.vehicle.constant.area.SeatValue.entries.take(3).forEach { sv ->
+            val area = ai.pleos.playground.vehicle.api.model.area.SeatArea(sv)
+            seat.getCurrentSeatForeAftPosition(area, { android.util.Log.i("AutoJangbu", "probe $sv foreAft=$it") },
+                { android.util.Log.i("AutoJangbu", "probe $sv foreAft 실패 ${it.message}") })
+        }
+        seat.checkSeatForeAftPositionCapabilities({ cfg, bounds -> android.util.Log.i("AutoJangbu", "probe cap foreAft $cfg bounds=$bounds") },
+            { android.util.Log.i("AutoJangbu", "probe cap 실패 ${it.message}") })
     }
 
     private fun sample(today: LocalDate): List<Trip> {

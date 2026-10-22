@@ -16,8 +16,12 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.util.Log
+import ai.pleos.playground.vehicle.api.model.area.SeatArea
+import ai.pleos.playground.vehicle.constant.area.SeatValue
+import kr.chance.autojangbu.data.SeatPose
 import kr.chance.autojangbu.data.Trip
 import kr.chance.autojangbu.data.TripStore
+import kr.chance.autojangbu.data.matchDriver
 import kr.chance.autojangbu.data.suggestCategory
 
 /**
@@ -49,7 +53,25 @@ class RecorderService : Service() {
     private val tick = object : Runnable {
         override fun run() {
             detector.onTick(lastOdoKm, System.currentTimeMillis())?.let(::save)
+            readPose { TripStore.setCurrentPose(it) }
             main.postDelayed(this, TICK_MS)
+        }
+    }
+
+    private val driverSeat = SeatArea(SeatValue.ROW_1_LEFT)
+
+    /** 운전석 시트 위치 세 값(앞뒤·등받이·높이)을 모두 읽으면 한 번 알려 준다. */
+    private fun readPose(onPose: (SeatPose) -> Unit) {
+        val seat = vehicle?.getSeat() ?: return
+        val values = arrayOfNulls<Int>(3)
+        fun done(i: Int, v: Int?) = main.post {
+            values[i] = v
+            if (values.all { it != null }) onPose(SeatPose(values[0]!!, values[1]!!, values[2]!!))
+        }
+        runCatching {
+            seat.getCurrentSeatForeAftPosition(driverSeat, { done(0, it) }, { log("시트 앞뒤 읽기 실패", it) })
+            seat.getCurrentSeatBackrestAnglePosition(driverSeat, { done(1, it) }, { log("등받이 읽기 실패", it) })
+            seat.getCurrentSeatHeightPosition(driverSeat, { done(2, it) }, { log("시트 높이 읽기 실패", it) })
         }
     }
 
@@ -104,6 +126,13 @@ class RecorderService : Service() {
         if (!wasInTrip && detector.inTrip) {
             Log.i(TAG, "운행 시작 ${detector.startOdoKm}km")
             TripStore.saveActive(detector.startOdoKm, detector.startMs)
+            // 출발할 때 시트 위치로 운전자를 알아본다(등록된 운전자가 있을 때만).
+            TripStore.saveActiveDriver(null)
+            if (TripStore.drivers.value.isNotEmpty()) readPose { pose ->
+                val d = matchDriver(pose, TripStore.drivers.value)
+                TripStore.saveActiveDriver(d)
+                Log.i(TAG, "운전자: ${d?.name ?: "기본 사용자"} (시트 $pose)")
+            }
         }
     }
 
@@ -112,6 +141,7 @@ class RecorderService : Service() {
     }
 
     private fun save(d: TripDetector.Draft) {
+        val (driverName, driverDept) = TripStore.loadActiveDriver()
         val trip = Trip(
             id = d.endMs,
             startMs = d.startMs,
@@ -119,6 +149,8 @@ class RecorderService : Service() {
             startOdoKm = d.startOdoKm,
             endOdoKm = d.endOdoKm,
             suggested = suggestCategory(d.startMs),
+            driverName = driverName,
+            driverDept = driverDept,
         )
         TripStore.add(trip)
         TripStore.saveActive(null, 0)

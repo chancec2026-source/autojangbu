@@ -20,6 +20,9 @@ data class Trip(
     val suggested: Category,
     val category: Category? = null,
     val memo: String = "",
+    // 시트 위치로 알아본 운전자. 비어 있으면 장부 정보의 기본 사용자.
+    val driverName: String = "",
+    val driverDept: String = "",
 ) {
     val distanceKm: Double get() = (endOdoKm - startOdoKm).coerceAtLeast(0.0)
     val confirmed: Boolean get() = category != null
@@ -39,6 +42,8 @@ data class Trip(
         .put("suggested", suggested.name)
         .put("category", category?.name ?: JSONObject.NULL)
         .put("memo", memo)
+        .put("driverName", driverName)
+        .put("driverDept", driverDept)
 
     companion object {
         fun fromJson(o: JSONObject) = Trip(
@@ -50,6 +55,8 @@ data class Trip(
             suggested = Category.valueOf(o.getString("suggested")),
             category = if (o.isNull("category")) null else Category.valueOf(o.getString("category")),
             memo = o.optString("memo", ""),
+            driverName = o.optString("driverName", ""),
+            driverDept = o.optString("driverDept", ""),
         )
     }
 }

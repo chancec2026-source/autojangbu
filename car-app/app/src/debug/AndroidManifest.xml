@@ -8,6 +8,7 @@
             <intent-filter>
                 <action android:name="kr.chance.autojangbu.DEMO_SEED" />
                 <action android:name="kr.chance.autojangbu.DEMO_CLEAR" />
+                <action android:name="kr.chance.autojangbu.DEMO_PROBE_SEAT" />
             </intent-filter>
         </receiver>
     </application>

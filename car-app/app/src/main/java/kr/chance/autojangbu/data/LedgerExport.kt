@@ -19,6 +19,10 @@ object LedgerExport {
         if (!t.confirmed) "구분 확인 필요" else "",
     ).filter { it.isNotBlank() }.joinToString(" / ")
 
+    /** 운행의 사용자(부서, 성명): 시트 위치로 알아본 운전자가 있으면 그 사람, 없으면 기본 사용자. */
+    fun user(t: Trip, profile: TripStore.Profile): Pair<String, String> =
+        if (t.driverName.isNotBlank()) t.driverDept to t.driverName else profile.department to profile.name
+
     fun toCsv(trips: List<Trip>, profile: TripStore.Profile, periodLabel: String): String {
         val sb = StringBuilder("﻿")
         sb.appendLine("업무용승용차 운행기록부")
@@ -33,8 +37,9 @@ object LedgerExport {
             val c = t.effectiveCategory
             val commute = if (c == Category.COMMUTE) t.distanceKm else 0.0
             val business = if (c == Category.BUSINESS) t.distanceKm else 0.0
+            val (dept, name) = user(t, profile)
             sb.appendLine(
-                listOf(day.format(t.startMs), profile.department, profile.name, km(t.startOdoKm), km(t.endOdoKm),
+                listOf(day.format(t.startMs), dept, name, km(t.startOdoKm), km(t.endOdoKm),
                     km(t.distanceKm), km(commute), km(business), note(t)).joinToString(",") { csv(it) }
             )
         }

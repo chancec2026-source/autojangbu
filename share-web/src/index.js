@@ -82,6 +82,7 @@ function ledgerPage(l, url) {
   const rows = l.rows.map((r) => `
       <tr>
         <td>${esc(r.date)}</td>
+        <td>${esc(r.user || "")}</td>
         <td class="n">${fmt(r.startKm, 0)}</td><td class="n">${fmt(r.endKm, 0)}</td>
         <td class="n strong">${fmt(r.km)}</td>
         <td class="n">${fmt(r.commuteKm)}</td><td class="n">${fmt(r.businessKm)}</td>
@@ -104,7 +105,7 @@ function ledgerPage(l, url) {
     </div>
     <div class="table">
       <table>
-        <thead><tr><th>사용일자</th><th>주행 전 계기판</th><th>주행 후 계기판</th><th>주행거리</th><th>출·퇴근용</th><th>일반 업무용</th><th>비고</th></tr></thead>
+        <thead><tr><th>사용일자</th><th>사용자</th><th>주행 전 계기판</th><th>주행 후 계기판</th><th>주행거리</th><th>출·퇴근용</th><th>일반 업무용</th><th>비고</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
     </div>

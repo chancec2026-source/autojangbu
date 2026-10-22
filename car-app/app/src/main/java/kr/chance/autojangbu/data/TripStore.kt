@@ -23,6 +23,7 @@ object TripStore {
         prefs = context.getSharedPreferences("recorder", Context.MODE_PRIVATE)
         _trips.value = load()
         loadProfile()
+        loadDrivers()
     }
 
     private fun load(): List<Trip> {
@@ -107,6 +108,29 @@ object TripStore {
             .apply()
         _profile.value = p
     }
+
+    // 운전자 여러 명(시트 위치로 구분)
+    private val _drivers = MutableStateFlow<List<DriverEntry>>(emptyList())
+    val drivers: StateFlow<List<DriverEntry>> = _drivers
+
+    fun loadDrivers() { _drivers.value = DriverEntry.listFromJson(prefs.getString("drivers", "[]")) }
+
+    fun saveDrivers(list: List<DriverEntry>) {
+        prefs.edit().putString("drivers", DriverEntry.listToJson(list)).apply()
+        _drivers.value = list
+    }
+
+    // 상주 서비스가 주기적으로 읽는 지금 운전석 시트 위치(운전자 등록 화면에서 쓴다)
+    private val _currentPose = MutableStateFlow<SeatPose?>(null)
+    val currentPose: StateFlow<SeatPose?> = _currentPose
+    fun setCurrentPose(p: SeatPose) { _currentPose.value = p }
+
+    // 진행 중 운행의 운전자(출발 때 시트 위치로 정함)
+    fun saveActiveDriver(d: DriverEntry?) {
+        prefs.edit().putString("activeDriverName", d?.name ?: "").putString("activeDriverDept", d?.department ?: "").apply()
+    }
+    fun loadActiveDriver(): Pair<String, String> =
+        (prefs.getString("activeDriverName", "") ?: "") to (prefs.getString("activeDriverDept", "") ?: "")
 
     /** 차에서 읽은 자동차등록번호는 번호판처럼 생겼고 사용자가 비워 둔 경우에만 채운다. */
     fun fillPlateFromCar(plate: String) {
