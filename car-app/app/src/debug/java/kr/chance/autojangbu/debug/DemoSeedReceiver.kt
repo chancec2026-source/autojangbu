@@ -28,6 +28,9 @@ class DemoSeedReceiver : BroadcastReceiver() {
                 val endOdo = intent.getFloatExtra("odo", -1f).toDouble()
                 val shift = if (endOdo > 0) endOdo - trips.last().endOdoKm else 0.0
                 TripStore.replaceAll(trips.map { it.copy(startOdoKm = it.startOdoKm + shift, endOdoKm = it.endOdoKm + shift) })
+                // 장부 머리말 예시(실제 업체 정보 아님)
+                TripStore.saveProfile(TripStore.Profile(name = "대표", company = "예시상사(예시)", bizNo = "000-00-00000",
+                    carModel = "그랜저", plate = "12가3456"))
             }
         }
     }

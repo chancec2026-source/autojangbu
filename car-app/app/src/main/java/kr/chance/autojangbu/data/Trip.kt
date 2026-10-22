@@ -27,6 +27,9 @@ data class Trip(
     /** 사람이 고르기 전에는 추천값으로 계산하고, 화면에 '확인 필요'로 표시한다. */
     val effectiveCategory: Category get() = category ?: suggested
 
+    /** 일반 업무 운행인데 방문처·목적 메모가 없으면 세무조사 때 사적 사용으로 다퉈질 수 있다. */
+    val needsPurpose: Boolean get() = effectiveCategory == Category.BUSINESS && memo.isBlank()
+
     fun toJson(): JSONObject = JSONObject()
         .put("id", id)
         .put("startMs", startMs)
@@ -70,6 +73,7 @@ data class MonthSummary(
     val commuteKm: Double,
     val businessKm: Double,
     val unconfirmedCount: Int,
+    val missingPurposeCount: Int = 0,
 ) {
     val businessUseKm: Double get() = commuteKm + businessKm
     val businessUseRatio: Double get() = if (totalKm > 0) businessUseKm / totalKm else 0.0
@@ -83,5 +87,6 @@ fun summarize(trips: List<Trip>): MonthSummary {
         commuteKm = km(Category.COMMUTE),
         businessKm = km(Category.BUSINESS),
         unconfirmedCount = trips.count { !it.confirmed },
+        missingPurposeCount = trips.count { it.needsPurpose },
     )
 }

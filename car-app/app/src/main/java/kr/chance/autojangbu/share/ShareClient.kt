@@ -17,7 +17,8 @@ import org.json.JSONObject
 object ShareClient {
     private val day = SimpleDateFormat("yyyy-MM-dd(E)", Locale.KOREAN)
 
-    fun payload(monthLabel: String, trips: List<Trip>, driver: TripStore.Driver): JSONObject {
+    /** periodLabel: "2026-10"(한 달) 또는 "2026"(사업연도 전체). */
+    fun payload(periodLabel: String, trips: List<Trip>, profile: TripStore.Profile): JSONObject {
         val sorted = trips.sortedBy { it.startMs }
         val s = summarize(sorted)
         val rows = JSONArray()
@@ -30,19 +31,29 @@ object ShareClient {
                 .put("km", t.distanceKm)
                 .put("commuteKm", if (c == Category.COMMUTE) t.distanceKm else 0.0)
                 .put("businessKm", if (c == Category.BUSINESS) t.distanceKm else 0.0)
-                .put("note", listOf(t.memo, if (!t.confirmed) "구분 확인 필요" else "").filter { it.isNotBlank() }.joinToString(" / ")))
+                .put("note", LedgerExport.note(t)))
         }
         return JSONObject()
-            .put("month", monthLabel)
-            .put("driver", JSONObject().put("name", driver.name).put("department", driver.department))
+            .put("month", periodLabel)
+            .put("driver", JSONObject().put("name", profile.name).put("department", profile.department))
+            .put("vehicle", JSONObject()
+                .put("company", profile.company).put("bizNo", profile.bizNo)
+                .put("carModel", profile.carModel).put("plate", profile.plate))
             .put("summary", JSONObject()
                 .put("tripCount", s.tripCount)
                 .put("totalKm", s.totalKm)
                 .put("businessUseKm", s.businessUseKm)
                 .put("businessUseRatio", s.businessUseRatio)
-                .put("unconfirmedCount", s.unconfirmedCount))
+                .put("unconfirmedCount", s.unconfirmedCount)
+                .put("missingPurposeCount", s.missingPurposeCount))
             .put("rows", rows)
-            .put("csv", LedgerExport.toCsv(sorted, driver.name, driver.department))
+            .put("csv", LedgerExport.toCsv(sorted, profile, periodText(periodLabel)))
+    }
+
+    /** "2026-10" → "2026년 10월", "2026" → "2026년(1월 1일부터)" */
+    fun periodText(label: String): String {
+        val parts = label.split("-")
+        return if (parts.size == 2) "${parts[0]}년 ${parts[1].toInt()}월" else "${parts[0]}년(1월 1일부터)"
     }
 
     /** 네트워크 작업이므로 메인 스레드 밖에서 부른다. 성공하면 공유 링크를 돌려준다. */

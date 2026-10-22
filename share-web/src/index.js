@@ -32,13 +32,18 @@ async function upload(request, env, url) {
   if (text.length > MAX_BYTES) return json({ error: "too_large" }, 413);
   let body;
   try { body = JSON.parse(text); } catch { return json({ error: "bad_json" }, 400); }
-  if (!/^\d{4}-\d{2}$/.test(body.month || "") || typeof body.csv !== "string" || !Array.isArray(body.rows)) {
+  // month: "2026-10"(한 달) 또는 "2026"(사업연도 전체)
+  if (!/^\d{4}(-\d{2})?$/.test(body.month || "") || typeof body.csv !== "string" || !Array.isArray(body.rows)) {
     return json({ error: "bad_request" }, 400);
   }
   const id = randomId();
   const ledger = {
     month: body.month,
     driver: { name: String(body.driver?.name || ""), department: String(body.driver?.department || "") },
+    vehicle: {
+      company: String(body.vehicle?.company || ""), bizNo: String(body.vehicle?.bizNo || ""),
+      carModel: String(body.vehicle?.carModel || ""), plate: String(body.vehicle?.plate || ""),
+    },
     summary: body.summary || {},
     rows: body.rows.slice(0, 2000),
     csv: body.csv,
@@ -67,8 +72,12 @@ function csvResponse(ledger) {
 
 function ledgerPage(l, url) {
   const [y, mo] = l.month.split("-");
+  const period = mo ? `${Number(y)}년 ${Number(mo)}월` : `${Number(y)}년 전체`;
   const s = l.summary;
+  const v = l.vehicle || {};
   const who = [l.driver.department, l.driver.name].filter(Boolean).join(" ");
+  const head = [["상호(법인명)", v.company], ["사업자등록번호", v.bizNo], ["차종", v.carModel], ["자동차등록번호", v.plate]]
+    .map(([k, val]) => `<div><span>${k}</span><b>${esc(val || "—")}</b></div>`).join("");
   const fmt = (v, d = 1) => Number(v || 0).toLocaleString("ko-KR", { minimumFractionDigits: d, maximumFractionDigits: d });
   const rows = l.rows.map((r) => `
       <tr>
@@ -79,7 +88,8 @@ function ledgerPage(l, url) {
         <td>${esc(r.note || "")}</td>
       </tr>`).join("");
   const body = `
-    <p class="sub">${esc(who || "사용자")} · ${Number(y)}년 ${Number(mo)}월 · 업무용 승용차 운행기록부</p>
+    <p class="sub">${esc(who || "사용자")} · ${period} · 업무용 승용차 운행기록부</p>
+    <div class="head">${head}</div>
     <div class="stats">
       <div><span>운행</span><b>${s.tripCount ?? l.rows.length}건</b></div>
       <div><span>총 주행</span><b>${fmt(s.totalKm, 0)}km</b></div>
@@ -87,6 +97,7 @@ function ledgerPage(l, url) {
       <div class="hi"><span>업무사용비율</span><b>${fmt((s.businessUseRatio || 0) * 100, 0)}%</b></div>
     </div>
     ${s.unconfirmedCount ? `<p class="warn">구분을 확인하지 않은 운행 ${s.unconfirmedCount}건은 추천 구분으로 계산했어요.</p>` : ""}
+    ${s.missingPurposeCount ? `<p class="warn">방문 목적이 비어 있는 업무 운행 ${s.missingPurposeCount}건이 있어요. 비고에 목적을 적어 두면 세무 증빙에 유리합니다.</p>` : ""}
     <div class="actions">
       <a class="btn" href="/l/${url.pathname.split("/")[2]}/csv">엑셀용 파일 내려받기(국세청 양식)</a>
       <button class="btn line" id="copy">세무사님께 보낼 링크 복사</button>
@@ -104,7 +115,7 @@ function ledgerPage(l, url) {
         catch { prompt("아래 주소를 복사하세요", location.href); }
       };
     </script>`;
-  return page(`${Number(mo)}월 운행기록부`, body);
+  return page(mo ? `${Number(mo)}월 운행기록부` : `${Number(y)}년 운행기록부`, body);
 }
 
 function page(title, body, status = 200) {
@@ -123,6 +134,8 @@ function page(title, body, status = 200) {
   .stats span{color:var(--muted);font-size:14px} .stats b{font-size:22px;font-variant-numeric:tabular-nums}
   .stats .hi{background:var(--sign);border-color:var(--sign);color:#fff} .stats .hi span{color:var(--soft)}
   .warn{margin:0;color:var(--lane)}
+  .head{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:4px 16px;font-size:14px}
+  .head div{display:flex;gap:8px} .head span{color:var(--muted);min-width:96px} .head b{font-weight:600}
   .actions{display:flex;flex-wrap:wrap;gap:10px}
   .btn{display:inline-flex;align-items:center;min-height:48px;padding:0 18px;border-radius:10px;background:var(--sign);color:#fff;text-decoration:none;font:inherit;font-weight:700;border:1px solid var(--sign);cursor:pointer}
   .btn.line{background:var(--surface);color:var(--ink);border-color:var(--line)}

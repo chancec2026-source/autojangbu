@@ -79,6 +79,9 @@ class RecorderService : Service() {
             // 등록 직후 현재 값도 한 번 읽어 둔다.
             v.getOdometer().getCurrentDistanceDriven({ km -> main.post { km?.let { onOdometer(it.toDouble()) } } }, { log("계기판 읽기 실패", it) })
             v.getGear().getCurrentGearSelectionState({ g -> main.post { onGear(g) } }, { log("기어 읽기 실패", it) })
+            // 운행기록부 머리말의 자동차등록번호를 차에서 채운다.
+            v.getCarInfo().getCRNInfo({ crn -> main.post { crn?.let(TripStore::fillPlateFromCar); Log.i(TAG, "자동차등록번호: $crn") } },
+                { log("자동차등록번호 읽기 실패", it) })
             Log.i(TAG, "차량 연결 완료")
         } catch (e: Exception) {
             log("차량 연결 실패($attempt)", e)

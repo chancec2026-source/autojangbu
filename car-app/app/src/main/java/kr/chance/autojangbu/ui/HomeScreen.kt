@@ -80,7 +80,7 @@ fun HomeScreen() {
             Header(month, activeStart, lastOdo)
             Summary(monthTrips)
             if (pending != null) PendingCard(pending) else AllDone()
-            ExportRow(month, monthTrips)
+            ExportRow(month, monthTrips, trips.filter { it.month().year == month.year })
         }
         Column(Modifier.weight(1.15f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             var showReport by remember { mutableStateOf(false) }
@@ -118,17 +118,17 @@ private fun Tab(label: String, selected: Boolean, onClick: () -> Unit) {
 
 @Composable
 private fun Header(month: YearMonth, activeStart: Double?, lastOdo: Double?) {
-    val driver by TripStore.driver.collectAsStateWithLifecycle()
+    val profile by TripStore.profile.collectAsStateWithLifecycle()
     var editing by remember { mutableStateOf(false) }
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("오토장부", style = MaterialTheme.typography.displaySmall, color = Palette.sign, modifier = Modifier.weight(1f))
             OutlinedButton(onClick = { editing = true }, modifier = Modifier.heightIn(min = 64.dp), shape = RoundedCornerShape(10.dp)) {
-                val who = listOf(driver.department, driver.name).filter { it.isNotBlank() }.joinToString(" ")
-                Text("사용자: $who", style = MaterialTheme.typography.labelLarge, color = Palette.ink)
+                val who = listOf(profile.plate, profile.name).filter { it.isNotBlank() }.joinToString(" · ")
+                Text("장부 정보: $who", style = MaterialTheme.typography.labelLarge, color = Palette.ink)
             }
         }
-        if (editing) DriverDialog(driver, onDismiss = { editing = false })
+        if (editing) ProfileDialog(profile, onDismiss = { editing = false })
         val status = when {
             activeStart != null -> "운행 기록 중 · 출발 계기판 ${odo(activeStart)}km"
             lastOdo != null -> "주차 중 · 계기판 ${odo(lastOdo)}km"
@@ -140,21 +140,41 @@ private fun Header(month: YearMonth, activeStart: Double?, lastOdo: Double?) {
 }
 
 @Composable
-private fun DriverDialog(driver: TripStore.Driver, onDismiss: () -> Unit) {
-    var name by remember { mutableStateOf(driver.name) }
-    var dept by remember { mutableStateOf(driver.department) }
+private fun ProfileDialog(profile: TripStore.Profile, onDismiss: () -> Unit) {
+    var p by remember { mutableStateOf(profile) }
+    @Composable
+    fun field(label: String, value: String, onChange: (String) -> Unit) =
+        OutlinedTextField(value, onChange, label = { Text(label) }, singleLine = true,
+            textStyle = MaterialTheme.typography.bodyLarge, modifier = Modifier.fillMaxWidth())
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("운행기록부 사용자", style = MaterialTheme.typography.headlineSmall) },
+        title = { Text("운행기록부 정보", style = MaterialTheme.typography.headlineSmall) },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text("국세청 양식의 부서·성명 칸에 들어갑니다.", style = MaterialTheme.typography.bodyMedium, color = Palette.muted)
-                OutlinedTextField(name, { name = it }, label = { Text("성명") }, singleLine = true, textStyle = MaterialTheme.typography.bodyLarge)
-                OutlinedTextField(dept, { dept = it }, label = { Text("부서(없으면 비워 두세요)") }, singleLine = true, textStyle = MaterialTheme.typography.bodyLarge)
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text("국세청 양식의 머리말과 사용자 칸에 들어갑니다. 자동차등록번호는 차에서 읽어 와요.",
+                    style = MaterialTheme.typography.bodyMedium, color = Palette.muted)
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Box(Modifier.weight(1f)) { field("상호(법인명)", p.company) { p = p.copy(company = it) } }
+                    Box(Modifier.weight(1f)) { field("사업자등록번호", p.bizNo) { p = p.copy(bizNo = it) } }
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Box(Modifier.weight(1f)) { field("차종(예: 그랜저)", p.carModel) { p = p.copy(carModel = it) } }
+                    Box(Modifier.weight(1f)) { field("자동차등록번호", p.plate) { p = p.copy(plate = it) } }
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Box(Modifier.weight(1f)) { field("성명", p.name) { p = p.copy(name = it) } }
+                    Box(Modifier.weight(1f)) { field("부서(없으면 비워 두세요)", p.department) { p = p.copy(department = it) } }
+                }
             }
         },
         confirmButton = {
-            Button(onClick = { TripStore.saveDriver(name.trim().ifEmpty { "대표" }, dept.trim()); onDismiss() }) {
+            Button(onClick = {
+                TripStore.saveProfile(p.copy(
+                    name = p.name.trim().ifEmpty { "대표" }, department = p.department.trim(), company = p.company.trim(),
+                    bizNo = p.bizNo.trim(), carModel = p.carModel.trim(), plate = p.plate.trim(),
+                ))
+                onDismiss()
+            }) {
                 Text("저장", style = MaterialTheme.typography.labelLarge)
             }
         },
@@ -173,6 +193,10 @@ private fun Summary(monthTrips: List<Trip>) {
     }
     if (s.unconfirmedCount > 0) {
         Text("추천으로 계산한 운행 ${s.unconfirmedCount}건은 확인이 필요해요.",
+            style = MaterialTheme.typography.bodyMedium, color = Palette.lane)
+    }
+    if (s.missingPurposeCount > 0) {
+        Text("방문 목적이 비어 있는 업무 운행 ${s.missingPurposeCount}건 — 목적을 적어 두면 세무 증빙에 유리해요.",
             style = MaterialTheme.typography.bodyMedium, color = Palette.lane)
     }
 }
@@ -231,42 +255,48 @@ private fun AllDone() {
 }
 
 @Composable
-private fun ExportRow(month: YearMonth, monthTrips: List<Trip>) {
+private fun ExportRow(month: YearMonth, monthTrips: List<Trip>, yearTrips: List<Trip>) {
     val context = LocalContext.current
     var message by remember { mutableStateOf<String?>(null) }
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    // 업무사용비율은 사업연도 단위로 따지므로 '올해 전체'도 내보낼 수 있게 한다.
+    var wholeYear by remember { mutableStateOf(false) }
+    val label = if (wholeYear) "${month.year}" else "%d-%02d".format(month.year, month.monthValue)
+    val trips = if (wholeYear) yearTrips else monthTrips
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text("내보낼 기간", style = MaterialTheme.typography.bodyLarge, color = Palette.muted)
+            Tab("이번 달", selected = !wholeYear) { wholeYear = false }
+            Tab("올해 전체(사업연도)", selected = wholeYear) { wholeYear = true }
+        }
         OutlinedButton(
             onClick = {
-                val label = "%d-%02d".format(month.year, month.monthValue)
-                val driver = TripStore.driver.value
-                val csv = LedgerExport.toCsv(monthTrips, userName = driver.name, department = driver.department)
+                val csv = LedgerExport.toCsv(trips, TripStore.profile.value, ShareClient.periodText(label))
                 val dir = context.getExternalFilesDir(null) ?: context.filesDir
                 message = "저장했어요: " + LedgerExport.write(dir, label, csv).absolutePath
             },
             modifier = Modifier.heightIn(min = 72.dp),
             shape = RoundedCornerShape(12.dp),
-        ) { Text("이번 달 국세청 양식으로 내보내기(엑셀용 CSV)", style = MaterialTheme.typography.labelLarge) }
+        ) { Text("국세청 양식으로 내보내기(엑셀용 CSV)", style = MaterialTheme.typography.labelLarge) }
         message?.let { Text(it, style = MaterialTheme.typography.bodyMedium, color = Palette.muted) }
-        ShareButton(month, monthTrips)
+        ShareButton(label, trips)
     }
 }
 
-/** 이번 달 장부를 올리고 QR 코드를 띄운다. 휴대폰으로 찍어 엑셀을 받거나 세무사에게 링크를 보낸다. */
+/** 장부를 올리고 QR 코드를 띄운다. 휴대폰으로 찍어 엑셀을 받거나 세무사에게 링크를 보낸다. */
 @Composable
-private fun ShareButton(month: YearMonth, monthTrips: List<Trip>) {
+private fun ShareButton(label: String, trips: List<Trip>) {
     val scope = rememberCoroutineScope()
     var state by remember { mutableStateOf<ShareState>(ShareState.Idle) }
     Button(
         onClick = {
             state = ShareState.Loading
-            val label = "%d-%02d".format(month.year, month.monthValue)
-            val body = ShareClient.payload(label, monthTrips, TripStore.driver.value)
+            val body = ShareClient.payload(label, trips, TripStore.profile.value)
             scope.launch {
                 val result = withContext(Dispatchers.IO) { ShareClient.upload(body) }
                 state = result.fold({ ShareState.Ready(it) }, { ShareState.Failed(it.message ?: "알 수 없는 오류") })
             }
         },
-        enabled = state !is ShareState.Loading && monthTrips.isNotEmpty(),
+        enabled = state !is ShareState.Loading && trips.isNotEmpty(),
         modifier = Modifier.heightIn(min = 72.dp),
         shape = RoundedCornerShape(12.dp),
     ) {
@@ -313,6 +343,8 @@ private fun TripRow(trip: Trip) {
                     style = MaterialTheme.typography.bodyMedium, color = Palette.muted)
                 if (trip.memo.isNotBlank()) {
                     Text("메모: ${trip.memo}", style = MaterialTheme.typography.bodyMedium, color = Palette.sign)
+                } else if (trip.needsPurpose) {
+                    Text("방문 목적을 적어 두세요", style = MaterialTheme.typography.bodyMedium, color = Palette.lane)
                 }
             }
             Text("${km(trip.distanceKm)}km", style = MaterialTheme.typography.titleLarge,
@@ -337,6 +369,7 @@ private fun CategoryChip(trip: Trip) {
             Text(if (confirmed) trip.effectiveCategory.label else "${trip.suggested.label}?",
                 style = MaterialTheme.typography.labelLarge, color = Palette.ink)
         }
+        var editingMemo by remember { mutableStateOf(false) }
         DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
             Category.entries.forEach { c ->
                 DropdownMenuItem(
@@ -344,6 +377,32 @@ private fun CategoryChip(trip: Trip) {
                     onClick = { TripStore.classify(trip.id, c); open = false },
                 )
             }
+            DropdownMenuItem(
+                text = { Text("메모(방문 목적) 쓰기", style = MaterialTheme.typography.bodyLarge, color = Palette.sign) },
+                onClick = { open = false; editingMemo = true },
+            )
         }
+        if (editingMemo) MemoDialog(trip, onDismiss = { editingMemo = false })
     }
+}
+
+@Composable
+private fun MemoDialog(trip: Trip, onDismiss: () -> Unit) {
+    var memo by remember { mutableStateOf(trip.memo) }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("방문처·목적", style = MaterialTheme.typography.headlineSmall) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text("${dayFmt.format(trip.startMs)} ${timeFmt.format(trip.startMs)} · ${km(trip.distanceKm)}km 운행의 비고 칸에 들어갑니다.",
+                    style = MaterialTheme.typography.bodyMedium, color = Palette.muted)
+                OutlinedTextField(memo, { memo = it }, label = { Text("예: 강남 OO아파트 현장 점검") }, singleLine = true,
+                    textStyle = MaterialTheme.typography.bodyLarge, modifier = Modifier.fillMaxWidth())
+            }
+        },
+        confirmButton = {
+            Button(onClick = { TripStore.setMemo(trip.id, memo.trim()); onDismiss() }) { Text("저장", style = MaterialTheme.typography.labelLarge) }
+        },
+        dismissButton = { OutlinedButton(onClick = onDismiss) { Text("취소", style = MaterialTheme.typography.labelLarge) } },
+    )
 }

@@ -45,7 +45,10 @@ class GleoActionReceiver : BroadcastReceiver() {
         if (note.isNotEmpty()) TripStore.setMemo(trip.id, note)
         Notifications.cancelTrip(context, trip.id)
         val noteText = if (note.isNotEmpty()) " with the note \"$note\"" else ""
-        return Result("success", "Recorded the ${km(trip)} km trip as ${english(category)} use$noteText.", trip)
+        // 일반 업무인데 방문 목적이 없으면 세무 증빙을 위해 한마디 더 청한다.
+        val ask = if (category == Category.BUSINESS && note.isEmpty())
+            " Tell me where you went or why, and I will add it as the purpose for the tax record." else ""
+        return Result("success", "Recorded the ${km(trip)} km trip as ${english(category)} use$noteText.$ask", trip)
     }
 
     private fun addNote(p: JSONObject): Result {
