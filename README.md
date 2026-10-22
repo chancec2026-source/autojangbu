@@ -1,0 +1,49 @@
+# 오토장부 (AutoJangbu)
+
+시동만 걸고 다니면, 차 계기판 거리를 그대로 읽어 **국세청 업무용 승용차 운행기록부**를 자동으로 채워 주는 Pleos Connect 차량 앱입니다.
+
+## 무엇을 하나요
+- **자동 운행 기록**: 기어가 D로 바뀌면 출발 계기판 거리, P에서 운전석 문이 열리면 도착 계기판 거리를 저장합니다. 화면이 꺼져 있어도 상주 서비스가 기록합니다.
+- **말 한마디 분류**: 주차하면 업무·출퇴근·개인 버튼이 달린 알림이 뜹니다. Gleo AI에게 "오토장부, 업무로 기록해. 강남 현장 다녀왔어"라고 말하면 구분과 메모가 저장됩니다.
+- **이번 달 결산**: 업무사용비율, 날짜별 운행 막대, 가장 긴 운행, 자주 간 곳.
+- **국세청 양식 내보내기**: 엑셀용 CSV, 그리고 QR 코드로 휴대폰에 받아 세무사에게 링크로 보내기.
+- 위치 좌표는 수집하지 않습니다.
+
+## 폴더
+| 폴더 | 내용 |
+|---|---|
+| `car-app/` | 차량 앱 (Android · Kotlin · Jetpack Compose) |
+| `share-web/` | 장부 공유 서버 (Cloudflare Worker + KV, 60일 뒤 자동 삭제) |
+| `tools/` | 에뮬레이터 시연 스크립트 (가상 콘솔로 운행 재생, 시연 영상 녹화) |
+| `apk/` | 심사용 APK |
+
+## 사용한 Pleos API
+- **Vehicle SDK 2.3.2**: `Odometer.getCurrentDistanceDriven` / `registerDistanceDriven`, `Gear.registerGearSelection`, `Door.registerDoorPosition`, `Seat`
+- **Gleo AI App Schema** (`car-app/app/src/main/assets/schema.json`): `CLASSIFY_LAST_TRIP`, `ADD_TRIP_NOTE`, `GET_MONTHLY_LOGBOOK_SUMMARY` — `component=service`, 결과는 `ai.pleos.playground.intent.action.APP_ACTION_RESPONSE` 콜백
+
+## 빌드와 실행
+준비물: Android Studio, JDK 17, Pleos Connect Emulator v2.1.0 (API 34)
+
+```bash
+cd car-app
+# local.properties: sdk.dir=..., autojangbu.shareUrl=..., autojangbu.appKey=...
+./gradlew testDebugUnitTest assembleDebug
+adb install -r app/build/outputs/apk/debug/app-debug.apk
+```
+
+에뮬레이터에서 운행 재생(가상 콘솔):
+
+```bash
+adb forward tcp:8088 tcp:8088
+bash tools/demo_trip.sh 18          # 지금 계기판 값에서 18km 운행 1건
+```
+
+Gleo 음성 호출 재현(에뮬레이터에 Gleo 음성 앱이 없을 때):
+
+```bash
+adb shell "am broadcast --user 10 -a CLASSIFY_LAST_TRIP -p kr.chance.autojangbu \
+  --es ACTION_PARAM '{\"actionParameters\":{\"category\":\"business\",\"note\":\"거래처 미팅\"}}'"
+```
+
+## 테스트
+`car-app/app/src/test` — 운행 판단 규칙(잠깐 정차, 기어만 바꾼 경우, 3분 정차 등), 국세청 양식 CSV, 음성 파라미터 해석.

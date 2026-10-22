@@ -1,0 +1,61 @@
+{
+  "packageName": "kr.chance.autojangbu",
+  "appDescription": "Business vehicle logbook that records every trip from the odometer and prepares the National Tax Service mileage log.",
+  "invokeWord": "오토장부",
+  "version": "0.1.0",
+  "actionCalls": [
+    {
+      "type": "function",
+      "function": {
+        "component": "service",
+        "name": "CLASSIFY_LAST_TRIP",
+        "description": "Records the most recently finished trip as business, commute, or personal use, with an optional short note about the visit.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "category": {
+              "type": "string",
+              "description": "Purpose of the trip: business, commute, or personal."
+            },
+            "note": {
+              "type": "string",
+              "description": "Optional short note about where the driver went or why, kept in the user's language."
+            }
+          },
+          "required": ["category"]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "component": "service",
+        "name": "ADD_TRIP_NOTE",
+        "description": "Adds a short note to the most recently finished trip without changing its purpose.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "note": {
+              "type": "string",
+              "description": "Short note about the trip, kept in the user's language."
+            }
+          },
+          "required": ["note"]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "component": "service",
+        "name": "GET_MONTHLY_LOGBOOK_SUMMARY",
+        "description": "Reports this month's number of trips, total distance, business-use distance, business-use ratio, and trips still waiting for a purpose.",
+        "parameters": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        }
+      }
+    }
+  ]
+}

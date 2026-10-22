@@ -1,0 +1,9 @@
+name = "chance-autojangbu"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+workers_dev = true
+
+# 차에서 올린 월별 운행기록부(60일 뒤 자동 삭제). id는 아래 kv namespace create 결과로 채운다.
+[[kv_namespaces]]
+binding = "LEDGERS"
+id = "9b72d26e4bd54d969bc1129d7b6b449f"

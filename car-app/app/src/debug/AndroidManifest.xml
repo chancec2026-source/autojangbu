@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <!-- 개발용 빌드에만: 시연 영상용 예시 운행 넣기/지우기 -->
+        <receiver
+            android:name=".debug.DemoSeedReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="kr.chance.autojangbu.DEMO_SEED" />
+                <action android:name="kr.chance.autojangbu.DEMO_CLEAR" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

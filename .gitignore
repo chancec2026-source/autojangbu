@@ -1,0 +1,15 @@
+# 비밀 값(앱 키)과 개인 설정
+.app_key
+local.properties
+
+# 빌드 산출물
+.gradle/
+build/
+.kotlin/
+.idea/
+*.iml
+node_modules/
+.wrangler/
+
+# 공식 샘플 앱(별도 저장소에서 받아 쓰는 참고용)
+pleos-sample-vehicle-app/
