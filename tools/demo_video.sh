@@ -35,6 +35,9 @@ voice() { "$ADB" $E shell "am broadcast --user 10 -a $1 -p $PKG --es ACTION_PARA
 
 # 준비: 예시 한 달 운행을 넣고, 오늘 아침 출근 운행은 분류해 둔다.
 START=$(odo_now)
+# 새로 설치한 앱은 한 번 실행되기 전까지 방송을 받지 않으므로 먼저 띄운다.
+"$ADB" $E shell am start --user 10 -n $PKG/.MainActivity >/dev/null
+sleep 3
 "$ADB" $E shell am broadcast --user 10 -a $PKG.DEMO_SEED -p $PKG --ef odo "$START" >/dev/null
 voice CLASSIFY_LAST_TRIP '{"actionParameters":{"category":"commute"}}'
 gear Park; speed 0 0 0; door false; seat true
@@ -42,7 +45,7 @@ gear Park; speed 0 0 0; door false; seat true
 sleep 4
 
 # 녹화 시작
-"$ADB" $E shell screenrecord --size 1920x1080 --time-limit 90 /sdcard/autojangbu_demo.mp4 &
+"$ADB" $E shell screenrecord --size 1920x1080 --time-limit 100 /sdcard/autojangbu_demo.mp4 &
 REC=$!
 sleep 4
 
@@ -63,7 +66,10 @@ sleep 5
 # 이번 달 결산 → 운행 목록 → 국세청 양식 내보내기
 tap_text "이번 달 결산"; sleep 6
 tap_text "운행 목록"; sleep 3
-tap_text "이번 달 국세청 양식"; sleep 5
+tap_text "이번 달 국세청 양식"; sleep 3
+# 휴대폰으로 받기: 장부를 올리고 QR을 띄운다(인터넷 필요)
+tap_text "휴대폰으로 받기"; sleep 7
+tap_text "닫기"; sleep 1
 
 "$ADB" $E shell pkill -INT screenrecord
 wait $REC 2>/dev/null
