@@ -11,6 +11,11 @@ val localProps = Properties().apply {
     rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
 }
 
+// 릴리스 서명 키는 저장소 밖(../.secrets)에 둔다. 없으면 릴리스 서명 없이 빌드된다.
+val keyProps = Properties().apply {
+    rootProject.file("../.secrets/key.properties").takeIf { it.exists() }?.inputStream()?.use { load(it) }
+}
+
 android {
     namespace = "kr.chance.autojangbu"
     compileSdk = 35
@@ -25,9 +30,21 @@ android {
         buildConfigField("String", "SHARE_KEY", "\"${localProps.getProperty("autojangbu.appKey", "")}\"")
     }
 
+    signingConfigs {
+        if (keyProps.containsKey("storeFile")) {
+            create("release") {
+                storeFile = file(keyProps.getProperty("storeFile"))
+                storePassword = keyProps.getProperty("storePassword")
+                keyAlias = keyProps.getProperty("keyAlias")
+                keyPassword = keyProps.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.findByName("release")
         }
     }
 

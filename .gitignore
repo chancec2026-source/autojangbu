@@ -13,3 +13,6 @@ node_modules/
 
 # 공식 샘플 앱(별도 저장소에서 받아 쓰는 참고용)
 pleos-sample-vehicle-app/
+
+# 서명 키
+.secrets/
