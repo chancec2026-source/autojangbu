@@ -1,3 +1,5 @@
 *.bat -text
 *.ps1 -text
 *.apk binary
+*.mp4 binary
+*.docx binary
