@@ -42,6 +42,7 @@ import java.time.Instant
 import java.time.YearMonth
 import java.time.ZoneId
 import java.util.Locale
+import kr.chance.autojangbu.BuildConfig
 import kr.chance.autojangbu.data.Category
 import kr.chance.autojangbu.data.DriverEntry
 import kr.chance.autojangbu.data.LedgerExport
@@ -172,6 +173,7 @@ private fun ProfileDialog(profile: TripStore.Profile, onDismiss: () -> Unit) {
                     Box(Modifier.weight(1f)) { field("부서(선택)", p.department) { p = p.copy(department = it) } }
                 }
                 DriversSection()
+                if (BuildConfig.DEBUG) DemoSeedButton(onDone = onDismiss)
             }
         },
         confirmButton = {
@@ -187,6 +189,22 @@ private fun ProfileDialog(profile: TripStore.Profile, onDismiss: () -> Unit) {
         },
         dismissButton = { OutlinedButton(onClick = onDismiss) { Text("취소", style = MaterialTheme.typography.labelLarge) } },
     )
+}
+
+/** 체험판(개발용 빌드)에만: 한 달 치 예시 운행을 넣는다. 받는 쪽은 src/debug 의 DemoSeedReceiver. */
+@Composable
+private fun DemoSeedButton(onDone: () -> Unit) {
+    val context = LocalContext.current
+    val lastOdo by TripStore.lastOdoKm.collectAsStateWithLifecycle()
+    OutlinedButton(
+        onClick = {
+            context.sendBroadcast(android.content.Intent("kr.chance.autojangbu.DEMO_SEED")
+                .setPackage(context.packageName)
+                .putExtra("odo", (lastOdo ?: 12_000.0).toFloat()))
+            onDone()
+        },
+        modifier = Modifier.heightIn(min = 64.dp),
+    ) { Text("체험용 예시 데이터 넣기(지금 장부를 예시로 바꿉니다)", style = MaterialTheme.typography.labelLarge, color = Palette.lane) }
 }
 
 /** 한 차를 여러 사람이 쓸 때: 각자 맞춰 둔 시트 위치를 기억해 출발할 때 운전자를 알아본다. */

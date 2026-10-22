@@ -10,13 +10,16 @@
 - **운전자 여러 명**: 운전자별 시트 위치를 기억해 출발할 때 누가 운전하는지 알아보고 사용자 칸을 채움.
 - 위치 좌표는 수집하지 않습니다.
 
+## 직접 만져 보기
+PC에서 Pleos 에뮬레이터로 체험하는 방법은 **[체험_안내.md](체험_안내.md)** 에 있습니다(`trial_start.bat` → `trial_drive.bat` 더블클릭).
+
 ## 폴더
 | 폴더 | 내용 |
 |---|---|
 | `car-app/` | 차량 앱 (Android · Kotlin · Jetpack Compose) |
 | `share-web/` | 장부 공유 서버 (Cloudflare Worker + KV, 60일 뒤 자동 삭제) |
 | `tools/` | 에뮬레이터 시연 스크립트 (가상 콘솔로 운행 재생, 시연 영상 녹화) |
-| `apk/` | 심사용 APK |
+| `apk/` | 심사용 release APK, 체험판 `autojangbu-trial.apk`(예시 데이터 버튼 포함) |
 
 ## 사용한 Pleos API
 - **Vehicle SDK 2.3.2**: `Odometer.getCurrentDistanceDriven` / `registerDistanceDriven`, `Gear.registerGearSelection`, `Door.registerDoorPosition`, `Seat`(착석·시트 위치), `CarInfo.getCRNInfo`(자동차등록번호)
