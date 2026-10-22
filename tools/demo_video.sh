@@ -43,6 +43,8 @@ voice CLASSIFY_LAST_TRIP '{"actionParameters":{"category":"commute"}}'
 gear Park; speed 0 0 0; door false; seat true
 "$ADB" $E shell am start --user 10 -n $PKG/.MainActivity >/dev/null
 sleep 4
+# 이전 시험에서 열어 둔 창(QR·메모·장부 정보)이 있으면 닫는다.
+tap_text "닫기"; tap_text "취소"; tap_text "운행 목록"; tap_text "이번 달"; sleep 1
 
 # 녹화 시작
 "$ADB" $E shell screenrecord --size 1920x1080 --time-limit 100 /sdcard/autojangbu_demo.mp4 &
