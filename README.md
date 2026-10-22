@@ -6,7 +6,8 @@
 - **자동 운행 기록**: 기어가 D로 바뀌면 출발 계기판 거리, P에서 운전석 문이 열리면 도착 계기판 거리를 저장합니다. 화면이 꺼져 있어도 상주 서비스가 기록합니다.
 - **말 한마디 분류**: 주차하면 업무·출퇴근·개인 버튼이 달린 알림이 뜹니다. Gleo AI에게 "오토장부, 업무로 기록해. 강남 현장 다녀왔어"라고 말하면 구분과 메모가 저장됩니다.
 - **이번 달 결산**: 업무사용비율, 날짜별 운행 막대, 가장 긴 운행, 자주 간 곳.
-- **국세청 양식 내보내기**: 엑셀용 CSV, 그리고 QR 코드로 휴대폰에 받아 세무사에게 링크로 보내기.
+- **국세청 양식 내보내기**: 머리말(과세기간·상호·사업자등록번호·차종·자동차등록번호) 포함 엑셀용 CSV, 이번 달 / 사업연도 전체, QR 코드로 휴대폰에 받아 세무사에게 링크로 보내기. 방문 목적이 빠진 업무 운행은 표시.
+- **운전자 여러 명**: 운전자별 시트 위치를 기억해 출발할 때 누가 운전하는지 알아보고 사용자 칸을 채움.
 - 위치 좌표는 수집하지 않습니다.
 
 ## 폴더
@@ -18,7 +19,7 @@
 | `apk/` | 심사용 APK |
 
 ## 사용한 Pleos API
-- **Vehicle SDK 2.3.2**: `Odometer.getCurrentDistanceDriven` / `registerDistanceDriven`, `Gear.registerGearSelection`, `Door.registerDoorPosition`, `Seat`
+- **Vehicle SDK 2.3.2**: `Odometer.getCurrentDistanceDriven` / `registerDistanceDriven`, `Gear.registerGearSelection`, `Door.registerDoorPosition`, `Seat`(착석·시트 위치), `CarInfo.getCRNInfo`(자동차등록번호)
 - **Gleo AI App Schema** (`car-app/app/src/main/assets/schema.json`): `CLASSIFY_LAST_TRIP`, `ADD_TRIP_NOTE`, `GET_MONTHLY_LOGBOOK_SUMMARY` — `component=service`, 결과는 `ai.pleos.playground.intent.action.APP_ACTION_RESPONSE` 콜백
 
 ## 빌드와 실행
