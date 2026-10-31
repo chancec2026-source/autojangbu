@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 화면 위 브랜드 아이콘: 어두운 판 위 계기판 바늘(시안 A) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="64dp"
+    android:height="64dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+    <path android:pathData="M16,0h32a16,16 0,0 1,16 16v32a16,16 0,0 1,-16 16h-32a16,16 0,0 1,-16 -16v-32a16,16 0,0 1,16 -16z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="32"
+                android:startY="0"
+                android:endX="32"
+                android:endY="64"
+                android:startColor="#FF1C2C3F"
+                android:endColor="#FF091018" />
+        </aapt:attr>
+    </path>
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FF2B3C50"
+        android:strokeWidth="1"
+        android:pathData="M16,0.5h32a15.5,15.5 0,0 1,15.5 15.5v32a15.5,15.5 0,0 1,-15.5 15.5h-32a15.5,15.5 0,0 1,-15.5 -15.5v-32a15.5,15.5 0,0 1,15.5 -15.5z" />
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FF2A3B4F"
+        android:strokeWidth="5"
+        android:strokeLineCap="round"
+        android:pathData="M16.41,44A18,18 0,1 1,47.59 44" />
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FF61CDFF"
+        android:strokeWidth="5"
+        android:strokeLineCap="round"
+        android:pathData="M16.41,44A18,18 0,0 1,45.38 22.96" />
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="3.6"
+        android:strokeLineCap="round"
+        android:pathData="M32,35L40.92,26.97" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M28.4,35a3.6,3.6 0,1 1,7.2 0a3.6,3.6 0,1 1,-7.2 0z" />
+</vector>

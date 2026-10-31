@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="icon_background">#0B6A45</color>
+    <!-- 앱 바탕(시안 A 나이트 클러스터). 화면이 뜨기 전 창 색도 같게 해 번쩍임을 없앤다. -->
+    <color name="bg">#0A1119</color>
 </resources>

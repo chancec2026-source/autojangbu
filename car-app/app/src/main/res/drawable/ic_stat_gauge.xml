@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 알림 작은 아이콘(흰색 한 색): 계기판 바늘 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="2.2"
+        android:strokeLineCap="round"
+        android:pathData="M5.5,16.75A7.5,7.5 0,1 1,18.5 16.75" />
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M12,13L15.72,9.65" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M10.4,13a1.6,1.6 0,1 1,3.2 0a1.6,1.6 0,1 1,-3.2 0z" />
+</vector>

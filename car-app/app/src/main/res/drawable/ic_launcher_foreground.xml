@@ -1,30 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 오토장부 아이콘: 장부 한 장 위에 계기판 바늘. 108dp 캔버스, 가운데 66dp 안에 그린다. -->
+<!-- 앱 아이콘: 240° 눈금 위 하늘색 바늘. 108dp 캔버스, 가운데 66dp 안에 그린다. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- 장부 종이 -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M36,28h36a4,4 0,0 1,4 4v44a4,4 0,0 1,-4 4h-36a4,4 0,0 1,-4 -4v-44a4,4 0,0 1,4 -4z" />
-    <!-- 장부 줄 -->
-    <path
-        android:fillColor="#0B6A45"
-        android:pathData="M40,62h28v3h-28zM40,69h20v3h-20z" />
-    <!-- 계기판 반원 -->
     <path
         android:fillColor="#00000000"
-        android:strokeColor="#0B6A45"
-        android:strokeWidth="3.5"
+        android:strokeColor="#FF2A3B4F"
+        android:strokeWidth="5.5"
         android:strokeLineCap="round"
-        android:pathData="M42,54a12,12 0,0 1,24 0" />
-    <!-- 바늘 -->
+        android:pathData="M36.68,67A20,20 0,1 1,71.32 67" />
     <path
         android:fillColor="#00000000"
-        android:strokeColor="#C98E00"
-        android:strokeWidth="3.5"
+        android:strokeColor="#FF61CDFF"
+        android:strokeWidth="5.5"
         android:strokeLineCap="round"
-        android:pathData="M54,54L61,45" />
+        android:pathData="M36.68,67A20,20 0,0 1,68.86 43.62" />
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:pathData="M54,57L63.88,48.1" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M50,57a4,4 0,1 1,8 0a4,4 0,1 1,-8 0z" />
 </vector>

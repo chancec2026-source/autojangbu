@@ -6,8 +6,8 @@
 ## 목표
 Windows PC에 Pleos Connect 에뮬레이터를 띄우고, 오토장부 체험판(`apk/autojangbu-trial.apk`)을 설치해 아래를 확인한 뒤 화면 캡처 3장으로 보고한다.
 1. 예시 한 달 치 운행이 보이는 첫 화면
-2. 운행 1건 재생 후 뜨는 "이번 운행, 어떻게 기록할까요?" 카드
-3. '이번 달 결산' 화면
+2. 운행 1건 재생 후 뜨는 "이번 운행은 어떤 운행이었나요?" 카드
+3. 'O월 결산' 화면(그달 이름, 예: '10월 결산')
 
 빌드는 필요 없다(체험판 APK가 저장소에 있다). 사용자가 직접 눌러 보며 만질 수 있게 마지막에 에뮬레이터와 가상 콘솔(브라우저)을 켜 둔 채로 끝낸다.
 
@@ -48,14 +48,14 @@ GUI 방법은 `체험_안내.md` 2단계. 명령어로 하려면:
   - bat 끝의 `pause` 때문에 멈추므로 `cmd /c "echo.| <경로>\trial_start.bat"` 로 실행한다.
   - 에뮬레이터가 여러 대면 bat의 `-e` 가 실패한다 → adb 명령을 시리얼 지정으로 직접 실행한다.
 - 알림 권한: `adb -s <시리얼> shell pm grant --user 10 kr.chance.autojangbu android.permission.POST_NOTIFICATIONS`
-- 예시 데이터: 앱 **장부 정보 → 체험용 예시 데이터 넣기** 버튼을 누르거나(사용자도 이것을 쓰면 된다), 명령으로
+- 예시 데이터: 앱 오른쪽 위 **장부 정보 넣기(또는 번호판) 버튼 → 체험용 예시 데이터 넣기** 를 누르거나(사용자도 이것을 쓰면 된다), 명령으로
   `adb -s <시리얼> shell am broadcast --user 10 -a kr.chance.autojangbu.DEMO_SEED -p kr.chance.autojangbu --ef odo <지금 계기판 km>`
 
 ## 4. 운행 1건 재생과 확인
 - `trial_drive.bat`(= `powershell -ExecutionPolicy Bypass -File tools\trip_play.ps1 -Km 15`)
 - 확인: `adb -s <시리얼> logcat -d -s AutoJangbu` 에 `운행 저장 A→B km (15.0km)`
 - 캡처: `adb -s <시리얼> exec-out screencap -p > shot.png` (Git Bash면 `/sdcard` 경로 앞에 `MSYS_NO_PATHCONV=1`)
-- '이번 달 결산' 탭은 화면 오른쪽 위. 버튼 위치는 `uiautomator dump` 로 글자를 찾아 누른다(`tools/demo_video.sh` 의 `tap_text` 참고).
+- 'O월 결산' 탭은 오른쪽 칸 맨 위('운행 장부' 옆). 버튼 위치는 `uiautomator dump` 로 글자를 찾아 누른다(`tools/demo_video.sh` 의 `tap_text` 참고).
 
 ## 알려진 함정 (실제로 겪은 것)
 | 증상 | 원인·조치 |

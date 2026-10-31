@@ -24,7 +24,7 @@ object LedgerExport {
         if (t.driverName.isNotBlank()) t.driverDept to t.driverName else profile.department to profile.name
 
     fun toCsv(trips: List<Trip>, profile: TripStore.Profile, periodLabel: String): String {
-        val sb = StringBuilder("﻿")
+        val sb = StringBuilder("\uFEFF") // 엑셀이 UTF-8 로 알아보게 맨 앞에 BOM
         sb.appendLine("업무용승용차 운행기록부")
         sb.appendLine("과세기간,${csv(periodLabel)}")
         sb.appendLine("상호(법인명),${csv(profile.company)}")
