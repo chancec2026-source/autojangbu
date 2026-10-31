@@ -24,8 +24,8 @@ android {
         applicationId = "kr.chance.autojangbu"
         minSdk = 28
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 2
+        versionName = "1.0.0"
         buildConfigField("String", "SHARE_URL", "\"${localProps.getProperty("autojangbu.shareUrl", "")}\"")
         buildConfigField("String", "SHARE_KEY", "\"${localProps.getProperty("autojangbu.appKey", "")}\"")
     }
