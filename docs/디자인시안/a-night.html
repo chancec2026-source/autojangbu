@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>시안 A · 나이트 클러스터</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sun-typeface/SUIT@2/fonts/variable/woff2/SUIT-Variable.css">
+<style>
+:root{
+  --bg:#0A1119; --panel:#101A25; --raised:#16222F; --line:#1C2835; --line2:#283748;
+  --text:#EAF0F6; --sub:#93A1B2; --faint:#5C6A7B;
+  --biz:#61CDFF; --com:#2F72D6; --per:#4A5A6E; --amber:#F2B54A;
+  --kr:"SUIT Variable","Pretendard Variable","Malgun Gothic",sans-serif;
+  --num:"Barlow Semi Condensed","SUIT Variable",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg)}
+body{font-family:var(--kr);color:var(--text);word-break:keep-all;overflow-wrap:anywhere;-webkit-font-smoothing:antialiased}
+h1,h2,h3{text-wrap:balance} p{text-wrap:pretty}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+.ic{display:block}.ic svg{display:block;width:100%;height:100%}
+.arr{display:inline-block;width:.8em;height:.6em;margin:0 .25em;vertical-align:.08em;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;opacity:.8}
+.num{font-family:var(--num);font-variant-numeric:tabular-nums}
+
+.screen{position:relative;width:1704px;height:1204px;overflow:hidden;
+  background:radial-gradient(1100px 640px at 16% -10%,#152233 0%,rgba(21,34,51,0) 70%),
+             radial-gradient(900px 700px at 105% 115%,#0F1B29 0%,rgba(15,27,41,0) 70%),var(--bg)}
+
+/* 상단 줄 */
+.top{height:112px;padding:0 40px;display:flex;align-items:center;gap:26px}
+.brand{display:flex;align-items:center;gap:16px}
+.brand .ic{width:56px;height:56px}
+.brand b{font-size:30px;font-weight:800;letter-spacing:-.02em}
+.month{display:flex;align-items:center;gap:2px;padding-left:22px;border-left:1px solid var(--line2);height:48px}
+.month button{width:56px;height:64px;display:grid;place-items:center;color:var(--faint)}
+.month span{font:600 30px var(--num);letter-spacing:.02em;min-width:112px;text-align:center}
+.spacer{flex:1}
+.gear{display:flex;align-items:center;gap:12px;font-size:22px;font-weight:600;color:var(--sub)}
+.gear .p{width:40px;height:40px;border-radius:9px;background:var(--text);color:var(--bg);display:grid;place-items:center;font:700 26px var(--num)}
+.odo{display:flex;align-items:center;gap:3px;padding:7px 9px;border-radius:14px;background:#060A10;border:1px solid var(--line2);box-shadow:inset 0 2px 8px rgba(0,0,0,.6)}
+.odo i{font-style:normal;width:33px;height:50px;border-radius:5px;display:grid;place-items:center;font:600 34px var(--num);color:#F1F5F9;
+  background:linear-gradient(180deg,#03060A 0%,#18222E 24%,#1F2B39 50%,#18222E 76%,#03060A 100%)}
+.odo i.t{background:linear-gradient(180deg,#9AA6B3 0%,#EEF2F6 26%,#FFFFFF 50%,#EEF2F6 74%,#9AA6B3 100%);color:#0A1119;margin-left:3px}
+.odo em{font-style:normal;font:500 22px var(--num);color:var(--sub);margin:0 6px 0 8px}
+.plate{height:64px;padding:0 20px 0 8px;border-radius:18px;background:var(--panel);border:1px solid var(--line2);display:flex;align-items:center;gap:14px}
+.plate .pl{height:46px;padding:0 14px;border-radius:9px;background:#F4F6F8;color:#0B1118;font:800 23px var(--kr);display:flex;align-items:center;letter-spacing:.03em;box-shadow:inset 0 0 0 2px #0B1118}
+.plate small{font-size:22px;color:var(--sub);font-weight:600}
+
+/* 본문 두 단 */
+.main{position:absolute;top:120px;left:40px;right:40px;bottom:40px;display:grid;grid-template-columns:700px 1fr;gap:40px}
+.left{display:flex;flex-direction:column;gap:20px;min-height:0}
+.right{display:flex;flex-direction:column;gap:16px;min-height:0}
+
+/* 계기판 게이지 */
+.gauge{flex:0 0 452px;border-radius:28px;background:linear-gradient(180deg,#111C28,#0C151F);border:1px solid var(--line);position:relative;overflow:hidden}
+.gauge svg{position:absolute;inset:0}
+.gauge .center{position:absolute;left:0;right:0;top:104px;text-align:center}
+.gauge .lbl{font-size:22px;font-weight:700;color:var(--sub);letter-spacing:.01em}
+.gauge .val{font:600 150px/.9 var(--num);letter-spacing:-.01em;margin-top:10px;text-shadow:0 0 40px rgba(97,205,255,.18)}
+.gauge .val small{font-size:56px;font-weight:500;color:var(--sub);margin-left:4px}
+.gauge .km{position:absolute;left:0;right:0;top:334px;text-align:center;font:500 24px var(--num);color:var(--sub)}
+.gauge .km b{color:var(--text);font-weight:600}
+.legend{position:absolute;left:0;right:0;bottom:24px;display:flex;justify-content:center;gap:30px;font-size:20px;color:var(--sub);font-weight:600}
+.legend span{display:flex;align-items:center;gap:9px}
+.legend i{width:20px;height:7px;border-radius:4px}
+.legend b{font:600 22px var(--num);color:var(--text)}
+
+/* 경고등 타일 */
+.tiles{flex:0 0 100px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.tile{border-radius:20px;background:var(--panel);border:1px solid var(--line);padding:0 22px;display:flex;align-items:center;justify-content:space-between}
+.tile .t{font-size:20px;color:var(--sub);font-weight:700;display:flex;align-items:center;gap:9px}
+.tile .v{font:600 42px var(--num)}
+.tile .v small{font:700 20px var(--kr);color:var(--sub);margin-left:3px}
+.tile.warn{border-color:rgba(242,181,74,.28);background:linear-gradient(180deg,rgba(242,181,74,.07),rgba(242,181,74,.02))}
+.tile.warn .t{color:var(--amber)}
+.tile.warn .t svg{filter:drop-shadow(0 0 6px rgba(242,181,74,.7))}
+
+/* 방금 운행 카드 */
+.pcard{flex:0 0 340px;border-radius:28px;position:relative;padding:28px 30px 0;
+  background:linear-gradient(180deg,#17283A,#112031);border:1px solid #2A4157;box-shadow:0 24px 60px -24px rgba(0,0,0,.7)}
+.pcard::before{content:"";position:absolute;left:40px;right:40px;top:-1px;height:2px;background:linear-gradient(90deg,transparent,var(--biz),transparent)}
+.p-eye{display:flex;align-items:center;gap:10px;font-size:20px;font-weight:700;color:var(--biz)}
+.p-eye .dot{width:10px;height:10px;border-radius:50%;background:var(--biz);box-shadow:0 0 12px var(--biz)}
+.p-eye .at{margin-left:auto;font:500 21px var(--num);color:var(--sub)}
+.p-title{font-size:34px;font-weight:700;letter-spacing:-.015em;margin-top:12px}
+.p-meta{display:flex;align-items:baseline;gap:14px;margin-top:8px;color:var(--sub);font-size:21px;font-weight:600}
+.p-meta .num{font-size:24px;color:var(--text);font-weight:600}
+.p-meta .km{font:600 30px var(--num);color:var(--biz)}
+.choices{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:14px;margin-top:22px}
+.choice{height:92px;border-radius:20px;background:var(--raised);border:1px solid var(--line2);font-size:28px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:12px}
+.choice.rec{background:linear-gradient(180deg,#7AD6FF,#4FC2F7);color:#03131F;border-color:transparent;box-shadow:0 12px 32px -12px rgba(97,205,255,.75)}
+.choice.rec small{font-size:17px;font-weight:800;padding:5px 11px;border-radius:999px;background:rgba(3,19,31,.14)}
+.voice{margin-top:18px;display:flex;align-items:center;gap:10px;font-size:20px;color:var(--sub);font-weight:500}
+.voice b{color:var(--text);font-weight:600}
+
+/* 보내기 버튼 */
+.actions{flex:0 0 92px;display:grid;grid-template-columns:1.55fr 1fr;gap:14px}
+.btn{border-radius:22px;display:flex;align-items:center;justify-content:center;gap:12px;font-size:24px;font-weight:700}
+.btn.send{border:1.5px solid rgba(97,205,255,.6);background:rgba(97,205,255,.07);color:var(--text)}
+.btn.send svg{color:var(--biz)}
+.btn.ghost{border:1px solid var(--line2);color:var(--sub)}
+
+/* 오른쪽: 탭 + 목록 */
+.tabs{flex:0 0 76px;display:flex;align-items:center;justify-content:space-between}
+.seg{display:flex;padding:6px;border-radius:22px;background:var(--panel);border:1px solid var(--line)}
+.seg button{height:62px;padding:0 30px;border-radius:16px;font-size:24px;font-weight:700;color:var(--faint)}
+.seg button.on{background:var(--raised);color:var(--text);box-shadow:inset 0 0 0 1px var(--line2)}
+.count{font:500 23px var(--num);color:var(--sub)}
+.count b{color:var(--text);font-weight:600}
+.list{flex:1;min-height:0;border-radius:28px;background:var(--panel);border:1px solid var(--line);overflow:hidden;position:relative}
+.list::after{content:"";position:absolute;left:0;right:0;bottom:0;height:90px;background:linear-gradient(180deg,rgba(16,26,37,0),var(--panel));pointer-events:none}
+.day{height:56px;padding:0 28px;display:flex;align-items:center;gap:12px;background:#0D1620;border-bottom:1px solid var(--line);font-size:20px;color:var(--sub);font-weight:700}
+.day .d{font:600 24px var(--num);color:var(--text);letter-spacing:.01em}
+.day .tag{font-size:16px;padding:3px 10px;border-radius:999px;background:rgba(97,205,255,.14);color:var(--biz)}
+.day .sum{margin-left:auto;font:500 21px var(--num)}
+.row{height:104px;padding:0 24px 0 28px;display:grid;grid-template-columns:104px 1fr 116px 146px;align-items:center;gap:16px;border-bottom:1px solid var(--line)}
+.row .tm{font:600 32px/1 var(--num)}
+.row .tm small{display:block;font:500 20px/1 var(--num);color:var(--faint);margin-top:8px}
+.row .ttl{font-size:26px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .ttl.need{color:var(--amber);display:flex;align-items:center;gap:8px}
+.row .sub{font:500 20px var(--num);color:var(--sub);margin-top:6px;white-space:nowrap}
+.row .sub span{font-family:var(--kr);font-weight:600}
+.row .km{text-align:right;font:600 36px var(--num)}
+.row .km small{font-size:20px;color:var(--sub);margin-left:3px;font-weight:500}
+.row.is-pending{background:linear-gradient(90deg,rgba(242,181,74,.08),rgba(242,181,74,0) 70%)}
+.pill{height:60px;border-radius:30px;display:flex;align-items:center;justify-content:center;gap:10px;font-size:22px;font-weight:700}
+.pill i{width:10px;height:10px;border-radius:50%}
+.pill.business{background:rgba(97,205,255,.12);color:#A5E2FF}
+.pill.business i{background:var(--biz);box-shadow:0 0 10px var(--biz)}
+.pill.commute{background:rgba(47,114,214,.2);color:#ADC8F3}
+.pill.commute i{background:#4C8BEA}
+.pill.personal{background:rgba(74,90,110,.24);color:#AFBAC7}
+.pill.personal i{background:#6B7B90}
+.pill.wait{border:2px dashed rgba(242,181,74,.75);color:var(--amber)}
+
+/* 결산 */
+.report{flex:1;min-height:0;border-radius:28px;background:var(--panel);border:1px solid var(--line);padding:30px 32px;display:flex;flex-direction:column;gap:22px}
+.r-head{display:flex;align-items:baseline;justify-content:space-between}
+.r-head h2{font-size:32px;font-weight:700;letter-spacing:-.01em}
+.r-head span{font:500 22px var(--num);color:var(--sub)}
+.r-legend{display:flex;gap:26px;font-size:19px;color:var(--sub);font-weight:600;margin-top:-6px}
+.r-legend span{display:flex;align-items:center;gap:8px}
+.r-legend i{width:18px;height:7px;border-radius:4px}
+.chart{height:340px}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fact{border-radius:20px;background:var(--raised);border:1px solid var(--line);padding:20px 24px;min-height:150px}
+.fact .t{font-size:19px;color:var(--sub);font-weight:700}
+.fact .v{font:600 44px var(--num);margin-top:6px}
+.fact .v small{font:700 21px var(--kr);color:var(--sub);margin-left:4px}
+.fact .d{font-size:20px;color:var(--sub);margin-top:2px;font-weight:500}
+.fact ol{list-style:none;margin-top:10px;display:grid;gap:7px}
+.fact li{display:flex;justify-content:space-between;font-size:21px;font-weight:600}
+.fact li span{font:600 22px var(--num);color:var(--biz)}
+.note{display:flex;align-items:center;gap:10px;font-size:21px;color:var(--amber);font-weight:600}
+
+/* QR 대화상자 */
+.scrim{position:absolute;inset:0;background:rgba(3,7,11,.74);backdrop-filter:blur(8px);display:grid;place-items:center}
+.dialog{width:820px;border-radius:36px;background:linear-gradient(180deg,#132131,#0F1A26);border:1px solid var(--line2);padding:44px 52px 40px;box-shadow:0 40px 120px -20px rgba(0,0,0,.85);display:flex;flex-direction:column;align-items:center;text-align:center}
+.dialog h2{font-size:36px;font-weight:700;letter-spacing:-.015em}
+.dialog p{font-size:22px;color:var(--sub);margin-top:10px;line-height:1.45}
+.dialog .seg{margin-top:26px}
+.qrbox{position:relative;width:420px;height:420px;margin-top:30px;padding:26px;border-radius:26px;background:#fff}
+.qrbox .c{position:absolute;width:46px;height:46px;border:4px solid var(--biz);filter:drop-shadow(0 0 8px rgba(97,205,255,.6))}
+.qrbox .c1{left:-18px;top:-18px;border-right:0;border-bottom:0;border-top-left-radius:18px}
+.qrbox .c2{right:-18px;top:-18px;border-left:0;border-bottom:0;border-top-right-radius:18px}
+.qrbox .c3{left:-18px;bottom:-18px;border-right:0;border-top:0;border-bottom-left-radius:18px}
+.qrbox .c4{right:-18px;bottom:-18px;border-left:0;border-top:0;border-bottom-right-radius:18px}
+.url{margin-top:28px;font:500 20px var(--num);color:var(--sub);display:flex;align-items:center;gap:8px}
+.exp{margin-top:6px;font-size:20px;color:var(--faint);font-weight:600}
+.d-actions{display:grid;grid-template-columns:1fr 1fr;gap:14px;width:100%;margin-top:30px}
+.d-actions .btn{height:84px}
+.btn.primary{background:var(--text);color:var(--bg)}
+
+/* 휴대폰 공유 화면 */
+.phone{width:390px;height:844px;overflow:hidden;position:relative;padding:22px 18px;
+  background:radial-gradient(500px 300px at 20% -10%,#16263A 0%,rgba(22,38,58,0) 70%),var(--bg)}
+.ph-brand{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:800}
+.ph-brand .ic{width:30px;height:30px}
+.ph-brand .tag{margin-left:auto;font-size:13px;color:var(--sub);font-weight:600;padding:4px 10px;border:1px solid var(--line2);border-radius:999px}
+.phone h1{font-size:28px;font-weight:800;letter-spacing:-.02em;margin-top:22px}
+.ph-sub{font-size:14px;color:var(--sub);margin-top:4px;font-weight:500}
+.ph-gauge{position:relative;height:196px;margin-top:16px;border-radius:22px;background:var(--panel);border:1px solid var(--line);overflow:hidden}
+.ph-gauge .center{position:absolute;left:0;right:0;top:58px;text-align:center}
+.ph-gauge .lbl{font-size:13px;color:var(--sub);font-weight:700}
+.ph-gauge .val{font:600 68px/.95 var(--num)}
+.ph-gauge .val small{font-size:30px;color:var(--sub);font-weight:500}
+.ph-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.ph-stats div{border-radius:14px;background:var(--panel);border:1px solid var(--line);padding:10px 12px}
+.ph-stats span{display:block;font-size:12px;color:var(--sub);font-weight:700}
+.ph-stats b{font:600 22px var(--num)}
+.ph-warn{margin-top:10px;font-size:13px;color:var(--amber);font-weight:600;display:flex;gap:6px;align-items:center}
+.ph-btns{display:grid;gap:8px;margin-top:14px}
+.ph-btns .btn{height:52px;font-size:16px;border-radius:14px;gap:8px}
+.ph-list{margin-top:14px;border-radius:18px;background:var(--panel);border:1px solid var(--line);overflow:hidden}
+.ph-row{display:grid;grid-template-columns:62px 1fr auto;gap:8px;align-items:center;padding:11px 14px;border-bottom:1px solid var(--line)}
+.ph-row .d{font:600 16px var(--num)}
+.ph-row .d small{display:block;font:500 12px var(--num);color:var(--faint)}
+.ph-row .m{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ph-row .m small{display:block;font:500 12px var(--num);color:var(--sub)}
+.ph-row .k{font:600 18px var(--num);text-align:right}
+.ph-row .k small{display:block;font:700 11px var(--kr);color:var(--biz);text-align:right}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="icons.js"></script>
+<script src="data.js"></script>
+<script>
+(() => {
+  const { s, pending: p, f1, f0, dayLabel, CAT, title, groups, daily, arcPath, polar, profile, holidays, dow } = AJ;
+  const ic = AJ_ICONS.icon;
+  const AR = '<svg class="arr" viewBox="0 0 16 10"><path d="M1 5h13M10 1.5 14 5l-4 3.5"/></svg>';
+  const view = AJ.view;
+  const bFrac = s.business / s.total, cFrac = s.commute / s.total, u = s.ratio;
+
+  function gaugeSVG(W, H, cx, cy, R, w, small) {
+    let ticks = "", labels = "";
+    if (!small) {
+      for (let i = 0; i <= 50; i++) {
+        const v = i / 50, major = i % 5 === 0, lit = v <= u + 1e-9;
+        const [x0, y0] = polar(cx, cy, R + 18, v), [x1, y1] = polar(cx, cy, R + (major ? 36 : 27), v);
+        ticks += `<line x1="${x0.toFixed(1)}" y1="${y0.toFixed(1)}" x2="${x1.toFixed(1)}" y2="${y1.toFixed(1)}" stroke="${lit ? (major ? "#B9CADB" : "#5E7489") : (major ? "#3B4A5C" : "#253242")}" stroke-width="${major ? 3 : 2}" stroke-linecap="round"/>`;
+      }
+      for (let i = 0; i <= 100; i += 20) {
+        const [x, y] = polar(cx, cy, R + 60, i / 100);
+        labels += `<text x="${x.toFixed(1)}" y="${(y + 7).toFixed(1)}" text-anchor="middle" font-family="Barlow Semi Condensed" font-weight="500" font-size="20" fill="${i / 100 <= u ? "#7F91A5" : "#46556A"}">${i}</text>`;
+      }
+    }
+    const [nx0, ny0] = polar(cx, cy, R - (small ? 10 : 16), u), [nx1, ny1] = polar(cx, cy, R + (small ? 8 : 16), u);
+    return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+      <defs><filter id="glow${small ? "s" : ""}" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="${small ? 4 : 8}"/></filter></defs>
+      ${ticks}${labels}
+      <path d="${arcPath(cx, cy, R, 0, 1)}" fill="none" stroke="#18232F" stroke-width="${w}" stroke-linecap="round"/>
+      <path d="${arcPath(cx, cy, R, u, 1)}" fill="none" stroke="#33445A" stroke-width="${w}"/>
+      <g filter="url(#glow${small ? "s" : ""})" opacity=".55">
+        <path d="${arcPath(cx, cy, R, 0, bFrac)}" fill="none" stroke="#61CDFF" stroke-width="${w}"/>
+        <path d="${arcPath(cx, cy, R, bFrac, u)}" fill="none" stroke="#2F72D6" stroke-width="${w}"/>
+      </g>
+      <path d="${arcPath(cx, cy, R, 0.0001, bFrac)}" fill="none" stroke="#61CDFF" stroke-width="${w}" stroke-linecap="round"/>
+      <path d="${arcPath(cx, cy, R, bFrac, u)}" fill="none" stroke="#3A80E4" stroke-width="${w}"/>
+      <line x1="${nx0.toFixed(1)}" y1="${ny0.toFixed(1)}" x2="${nx1.toFixed(1)}" y2="${ny1.toFixed(1)}" stroke="#fff" stroke-width="${small ? 5 : 8}" stroke-linecap="round" filter="url(#glow${small ? "s" : ""})"/>
+      <line x1="${nx0.toFixed(1)}" y1="${ny0.toFixed(1)}" x2="${nx1.toFixed(1)}" y2="${ny1.toFixed(1)}" stroke="#fff" stroke-width="${small ? 3.5 : 5}" stroke-linecap="round"/>
+    </svg>`;
+  }
+
+  const odoNow = AJ.trips[AJ.trips.length - 1].endOdo;
+  const odoDigits = String(Math.floor(odoNow)).padStart(6, "0").split("").map((d) => `<i>${d}</i>`).join("") + `<i class="t">${Math.round((odoNow * 10) % 10)}</i>`;
+
+  const top = `
+  <header class="top">
+    <div class="brand"><span class="ic">${AJ_ICONS.app.a}</span><b>오토장부</b></div>
+    <div class="month"><button aria-label="이전 달">${ic("left", 30, 2.4)}</button><span class="num">2026. 10</span><button aria-label="다음 달">${ic("right", 30, 2.4)}</button></div>
+    <div class="spacer"></div>
+    <div class="gear"><span class="p">P</span>주차 중</div>
+    <div class="odo" aria-label="계기판 ${f1(odoNow)}km">${odoDigits}<em>km</em></div>
+    <button class="plate"><span class="pl">${profile.plate}</span><small>${profile.name}</small></button>
+  </header>`;
+
+  const left = `
+  <section class="left">
+    <div class="gauge">
+      ${gaugeSVG(700, 452, 350, 232, 166, 18)}
+      <div class="center">
+        <div class="lbl">10월 업무사용비율</div>
+        <div class="val">${s.ratioPct}<small>%</small></div>
+      </div>
+      <div class="km">업무 <b>${f1(s.businessUse)}</b> / 전체 ${f1(s.total)} km</div>
+      <div class="legend">
+        <span><i style="background:#61CDFF"></i>일반 업무 <b>${f1(s.business)}</b></span>
+        <span><i style="background:#3A80E4"></i>출퇴근 <b>${f1(s.commute)}</b></span>
+        <span><i style="background:#33445A"></i>개인 <b>${f1(s.personal)}</b></span>
+      </div>
+    </div>
+    <div class="tiles">
+      <div class="tile"><span class="t">운행</span><span class="v">${s.count}<small>건</small></span></div>
+      <div class="tile warn"><span class="t">${ic("warn", 24, 2.2)}확인 필요</span><span class="v">${s.unconfirmed}<small>건</small></span></div>
+      <div class="tile warn"><span class="t">${ic("warn", 24, 2.2)}목적 빈칸</span><span class="v">${s.missingPurpose}<small>건</small></span></div>
+    </div>
+    <div class="pcard">
+      <div class="p-eye"><span class="dot"></span>방금 주차했어요<span class="at">${p.end} 주차</span></div>
+      <h2 class="p-title">이번 운행은 어떤 운행이었나요?</h2>
+      <div class="p-meta"><span>10월 ${p.day}일 금</span><span class="num">${p.start} – ${p.end}</span><span class="km">${f1(p.km)} km</span></div>
+      <div class="choices">
+        <button class="choice rec">업무<small>추천</small></button>
+        <button class="choice">출퇴근</button>
+        <button class="choice">개인</button>
+      </div>
+      <div class="voice">${ic("mic", 24, 2)}말로 해도 돼요 — <b>“오토장부, 업무로 기록해”</b></div>
+    </div>
+    <div class="actions">
+      <button class="btn send">${ic("qr", 30, 2)}장부 보내기 · 휴대폰/세무사</button>
+      <button class="btn ghost">${ic("down", 28, 2)}엑셀 파일 저장</button>
+    </div>
+  </section>`;
+
+  const pill = (t) => t.pending ? `<span class="pill wait">업무?</span>` : `<span class="pill ${t.cat}"><i></i>${CAT[t.cat]}</span>`;
+  const rows = groups.slice(0, 4).map((g) => `
+      <div class="day"><span class="d">${dayLabel(g.day)}</span>${g.day === AJ.TODAY ? '<span class="tag">오늘</span>' : g.day === AJ.TODAY - 1 ? '<span class="tag" style="background:rgba(147,161,178,.14);color:var(--sub)">어제</span>' : ""}<span class="sum">${f1(g.km)} km</span></div>
+      ${g.trips.map((t) => `
+      <div class="row${t.pending ? " is-pending" : ""}">
+        <div class="tm">${t.start}<small>– ${t.end}</small></div>
+        <div style="min-width:0">
+          ${t.pending ? `<div class="ttl need">${ic("warn", 24, 2.2)}분류를 기다려요</div>` : t.cat === "business" && !t.memo ? `<div class="ttl need">${ic("pencil", 24, 2.2)}방문 목적을 적어 주세요</div>` : `<div class="ttl">${title(t)}</div>`}
+          <div class="sub">${f1(t.startOdo)}${AR}${f1(t.endOdo)} km · <span>${t.driver}</span></div>
+        </div>
+        <div class="km">${f1(t.km)}<small>km</small></div>
+        ${pill(t)}
+      </div>`).join("")}`).join("");
+
+  const tabs = (rep) => `
+    <div class="tabs">
+      <div class="seg"><button class="${rep ? "" : "on"}">운행 장부</button><button class="${rep ? "on" : ""}">10월 결산</button></div>
+      <div class="count"><b>${s.count}</b>건 · <b>${f1(s.total)}</b> km</div>
+    </div>`;
+
+  function chartSVG(W, H) {
+    const padL = 44, padB = 40, padT = 12, plotW = W - padL, plotH = H - padB - padT, max = 80, slot = plotW / 31, bw = 14;
+    let g = "";
+    for (let d = 1; d <= 31; d++) {
+      const off = dow(d) === 0 || dow(d) === 6 || holidays[d];
+      if (off) g += `<rect x="${(padL + (d - 1) * slot).toFixed(1)}" y="${padT}" width="${slot.toFixed(1)}" height="${plotH}" fill="#FFFFFF" opacity=".025"/>`;
+    }
+    for (let v = 0; v <= max; v += 20) {
+      const y = padT + plotH - (v / max) * plotH;
+      g += `<line x1="${padL}" x2="${W}" y1="${y}" y2="${y}" stroke="${v ? "#1E2A38" : "#34455A"}" stroke-width="${v ? 1 : 2}" ${v ? 'stroke-dasharray="3 6"' : ""}/>`;
+      if (v) g += `<text x="${padL - 12}" y="${y + 6}" text-anchor="end" font-family="Barlow Semi Condensed" font-size="18" fill="#5C6A7B">${v}</text>`;
+    }
+    daily.forEach((d) => {
+      let y = padT + plotH;
+      const x = padL + (d.day - 1) * slot + (slot - bw) / 2;
+      [["business", "#61CDFF"], ["commute", "#3A80E4"], ["personal", "#4A5A6E"]].forEach(([k, c]) => {
+        if (!d[k]) return;
+        const h = (d[k] / max) * plotH;
+        y -= h;
+        g += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw}" height="${(h - 2).toFixed(1)}" rx="3" fill="${c}"/>`;
+      });
+      if ([1, 5, 10, 15, 20, 25, 30].includes(d.day))
+        g += `<text x="${(x + bw / 2).toFixed(1)}" y="${H - 10}" text-anchor="middle" font-family="Barlow Semi Condensed" font-weight="${d.day === AJ.TODAY ? 600 : 500}" font-size="19" fill="${d.day === AJ.TODAY ? "#61CDFF" : "#5C6A7B"}">${d.day}</text>`;
+    });
+    const tx = padL + (AJ.TODAY - 1) * slot + slot / 2;
+    g += `<line x1="${tx}" x2="${tx}" y1="${padT}" y2="${padT + plotH}" stroke="#61CDFF" stroke-width="1.5" stroke-dasharray="2 5" opacity=".6"/>`;
+    return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${g}</svg>`;
+  }
+
+  const listPanel = `<div class="list">${rows}</div>`;
+  const reportPanel = `
+    <div class="report">
+      <div class="r-head"><h2>10월 운행 결산</h2><span>1일 – ${AJ.TODAY}일 · 하루 평균 ${f1(s.avgPerDay)} km</span></div>
+      <div class="r-legend"><span><i style="background:#61CDFF"></i>일반 업무</span><span><i style="background:#3A80E4"></i>출퇴근</span><span><i style="background:#4A5A6E"></i>개인</span><span style="margin-left:auto;color:var(--faint)">흐린 칸은 주말·공휴일</span></div>
+      <div class="chart">${chartSVG(818, 340)}</div>
+      <div class="facts">
+        <div class="fact"><div class="t">출근한 날</div><div class="v">${s.commuteDays}<small>일</small></div><div class="d">출퇴근 ${AJ.trips.filter((t) => t.cat === "commute").length}회 · ${f1(s.commute)} km</div></div>
+        <div class="fact"><div class="t">가장 긴 운행</div><div class="v">${f1(s.longest.km)}<small>km</small></div><div class="d">${s.longest.memo} · ${dayLabel(s.longest.day)}</div></div>
+        <div class="fact"><div class="t">자주 간 곳</div><ol>${s.places.map(([k, n]) => `<li>${k}<span>${n}회</span></li>`).join("")}</ol></div>
+        <div class="fact"><div class="t">운전한 사람</div><ol>${s.drivers.map(([k, n]) => `<li>${k}${k === "이수민" ? " (영업팀)" : ""}<span>${n}건</span></li>`).join("")}</ol></div>
+      </div>
+      <div class="note">${ic("warn", 24, 2.2)}확인 필요 ${s.unconfirmed}건 — 정하면 바로 세무사님께 보낼 수 있어요</div>
+    </div>`;
+
+  const qr = `
+    <div class="scrim"><div class="dialog">
+      <h2>휴대폰 카메라로 찍으세요</h2>
+      <p>열린 화면에서 엑셀 파일을 받거나, 링크를 세무사님께 보내면 됩니다.</p>
+      <div class="seg"><button class="on">10월 장부</button><button>2026년 전체</button></div>
+      <div class="qrbox"><span class="c c1"></span><span class="c c2"></span><span class="c c3"></span><span class="c c4"></span>${AJ.qrSVG("#0A1119")}</div>
+      <div class="url">${ic("link", 22, 2)}chance-autojangbu.chancec2026.workers.dev/l/Xk3v…</div>
+      <div class="exp">${AJ.expiry}까지 열려요 (60일)</div>
+      <div class="d-actions"><button class="btn ghost">${ic("down", 28, 2)}엑셀 파일 저장</button><button class="btn primary">닫기</button></div>
+    </div></div>`;
+
+  const phone = `
+    <div class="phone">
+      <div class="ph-brand"><span class="ic">${AJ_ICONS.app.a}</span>오토장부<span class="tag">공유된 장부</span></div>
+      <h1>10월 운행기록부</h1>
+      <div class="ph-sub">${profile.name} · ${profile.plate} · ${profile.company}</div>
+      <div class="ph-gauge">${gaugeSVG(354, 196, 177, 112, 84, 10, true)}
+        <div class="center"><div class="lbl">업무사용비율</div><div class="val">${s.ratioPct}<small>%</small></div></div>
+      </div>
+      <div class="ph-stats">
+        <div><span>운행</span><b>${s.count}건</b></div>
+        <div><span>총 주행</span><b>${f0(s.total)}</b></div>
+        <div><span>업무 사용</span><b>${f0(s.businessUse)}</b></div>
+      </div>
+      <div class="ph-warn">${ic("warn", 16, 2.2)}확인하지 않은 ${s.unconfirmed}건은 추천 구분으로 계산했어요</div>
+      <div class="ph-btns">
+        <button class="btn primary">${ic("down", 20, 2.2)}엑셀 파일 내려받기 (국세청 양식)</button>
+        <button class="btn ghost">${ic("link", 20, 2.2)}세무사님께 보낼 링크 복사</button>
+      </div>
+      <div class="ph-list">
+        ${AJ.trips.slice(-6).reverse().map((t) => `<div class="ph-row"><div class="d">${t.day < 10 ? "0" : ""}${t.day}일<small>${t.start}</small></div><div class="m">${t.pending ? "분류 대기" : title(t)}<small>${f1(t.startOdo)}${AR}${f1(t.endOdo)}</small></div><div class="k">${f1(t.km)}<small>${t.pending ? "업무?" : CAT[t.cat]}</small></div></div>`).join("")}
+      </div>
+    </div>`;
+
+  const root = document.getElementById("root");
+  if (view === "phone") { root.innerHTML = phone; return; }
+  const rep = view === "report";
+  root.innerHTML = `<div class="screen">${top}<main class="main">${left}<section class="right">${tabs(rep)}${rep ? reportPanel : listPanel}</section></main>${view === "qr" ? qr : ""}</div>`;
+})();
+</script>
+</body>
+</html>

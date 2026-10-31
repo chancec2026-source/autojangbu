@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>시안 B · 결재 장부</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Hahmlet:wght@600;700&display=swap">
+<style>
+:root{
+  --desk:#E4E8ED; --paper:#FFFFFF; --paper2:#F5F7FA; --rule:#E4E8EE; --rule2:#C6CED9; --ink:#141D31; --sub:#5A6679; --faint:#97A0AE;
+  --blue:#2346B0; --blue2:#8CA4E2; --gray:#C5CBD4; --seal:#CF3A2C; --flag:#FFF4C9;
+  --kr:"IBM Plex Sans KR","Malgun Gothic",sans-serif; --mono:"IBM Plex Mono",monospace; --serif:"Hahmlet",serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--desk)}
+body{font-family:var(--kr);color:var(--ink);word-break:keep-all;overflow-wrap:anywhere;-webkit-font-smoothing:antialiased}
+h1,h2,h3{text-wrap:balance} p{text-wrap:pretty}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+.ic{display:block}.ic svg{display:block;width:100%;height:100%}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.arr{display:inline-block;width:.8em;height:.6em;margin:0 .3em;vertical-align:.06em;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;opacity:.75}
+
+.screen{position:relative;width:1704px;height:1204px;overflow:hidden;background:linear-gradient(180deg,#EAEDF1 0%,var(--desk) 100%)}
+
+/* 상단 줄 */
+.top{height:104px;padding:0 40px;display:flex;align-items:center;gap:28px}
+.brand{display:flex;align-items:center;gap:14px}
+.brand .ic{width:54px;height:54px;filter:drop-shadow(0 2px 4px rgba(20,29,49,.12))}
+.brand b{font-size:29px;font-weight:700;letter-spacing:-.02em}
+.month{display:flex;align-items:center;gap:2px;padding-left:24px;border-left:1.5px solid var(--rule2);height:44px}
+.month button{width:52px;height:64px;display:grid;place-items:center;color:var(--faint)}
+.month span{font-size:27px;font-weight:600;min-width:150px;text-align:center}
+.spacer{flex:1}
+.status{display:flex;align-items:center;gap:12px;font-size:21px;color:var(--sub);font-weight:500}
+.status .p{width:36px;height:36px;border-radius:8px;border:2px solid var(--ink);display:grid;place-items:center;font:600 21px var(--mono);color:var(--ink)}
+.status .mono{color:var(--ink);font-weight:500}
+.plate{height:64px;display:flex;align-items:center;gap:14px;padding:0 18px 0 8px;border-radius:14px;background:var(--paper);box-shadow:0 1px 0 rgba(20,29,49,.06),0 6px 16px -10px rgba(20,29,49,.3)}
+.plate .pl{height:46px;padding:0 16px;border-radius:8px;border:2.5px solid var(--ink);font-size:23px;font-weight:700;display:flex;align-items:center;letter-spacing:.04em}
+.plate small{font-size:21px;color:var(--sub);font-weight:600}
+
+.main{position:absolute;top:112px;left:40px;right:40px;bottom:40px;display:grid;grid-template-columns:560px 1fr;gap:32px}
+.left{display:flex;flex-direction:column;gap:20px;min-height:0}
+.card{background:var(--paper);border-radius:18px;box-shadow:0 1px 0 rgba(20,29,49,.05),0 14px 32px -18px rgba(20,29,49,.32)}
+
+/* 결재 대기 */
+.pcard{flex:0 0 456px;padding:0 30px;position:relative}
+.w-head{height:70px;display:flex;align-items:center;gap:12px;border-bottom:1.5px dashed var(--rule2)}
+.w-head b{font-size:22px;font-weight:700}
+.w-head .n{min-width:28px;height:28px;border-radius:14px;background:var(--seal);color:#fff;font:600 17px var(--mono);display:grid;place-items:center}
+.w-head span{margin-left:auto;font-size:19px;color:var(--sub)}
+.w-body{display:flex;justify-content:space-between;align-items:flex-end;margin-top:26px}
+.w-date{font-size:21px;color:var(--sub);font-weight:600}
+.w-time{font:500 32px var(--mono);letter-spacing:-.03em;margin-top:4px}
+.w-odo{font:400 18px var(--mono);color:var(--sub);margin-top:10px;padding-top:10px;border-top:1px solid var(--rule)}
+.w-odo span{font-family:var(--kr)}
+.w-km{font:600 76px/1 var(--mono);color:var(--blue);letter-spacing:-.05em;text-align:right}
+.w-km small{font:600 26px var(--kr);margin-left:6px;letter-spacing:0}
+.w-q{font-size:23px;font-weight:700;margin-top:22px}
+.w-btns{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:12px;margin-top:14px}
+.w-btns button{height:96px;border-radius:16px;font-size:28px;font-weight:700;border:1.5px solid var(--rule2);background:var(--paper);display:flex;align-items:center;justify-content:center;gap:10px}
+.w-btns button.rec{background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:0 10px 22px -12px rgba(35,70,176,.8)}
+.w-btns button.rec small{font-size:15px;font-weight:600;padding:4px 9px;border-radius:999px;background:rgba(255,255,255,.18)}
+.w-voice{display:flex;align-items:center;gap:9px;margin-top:18px;font-size:19px;color:var(--sub)}
+.w-voice b{color:var(--ink);font-weight:600}
+
+/* 결재란 */
+.sum{flex:0 0 372px;padding:28px 28px}
+.s-head{display:flex;align-items:baseline;justify-content:space-between}
+.s-head b{font-size:22px;font-weight:700}
+.s-head span{font:400 18px var(--mono);color:var(--sub)}
+.s-notes{margin-top:18px!important}
+.grid4{display:grid;grid-template-columns:.8fr 1fr 1fr 1.25fr;border:1.5px solid var(--ink);margin-top:14px}
+.grid4 > div{border-left:1px solid var(--rule2);text-align:center}
+.grid4 > div:first-child{border-left:0}
+.grid4 .h{height:42px;display:grid;place-items:center;background:var(--paper2);border-bottom:1px solid var(--rule2);font-size:16px;font-weight:600;color:var(--sub)}
+.grid4 .v{height:124px;display:flex;align-items:baseline;justify-content:center;padding-top:44px;font:600 25px var(--mono);letter-spacing:-.04em}
+.grid4 .v small{font:600 16px var(--kr);color:var(--sub);margin-left:2px}
+.grid4 .v.big{font-size:52px;color:var(--blue);padding-top:30px}
+.grid4 .v.big small{font:600 24px var(--mono);color:var(--blue)}
+.s-notes{list-style:none;margin-top:16px;display:grid;gap:8px;font-size:18px;color:var(--sub)}
+.s-notes li{display:flex;gap:9px;align-items:flex-start;line-height:1.4}
+.s-notes li::before{content:"";flex:0 0 7px;height:7px;border-radius:50%;background:var(--faint);margin-top:9px}
+.s-notes li.red::before{background:var(--seal)}
+.s-notes b{color:var(--ink);font-weight:600}
+
+/* 보내기 */
+.send{flex:1;display:flex;flex-direction:column;gap:14px;justify-content:flex-end}
+.seg{display:flex;padding:5px;border-radius:16px;background:#D6DCE4}
+.seg button{flex:1;height:58px;border-radius:12px;font-size:21px;font-weight:600;color:var(--sub)}
+.seg button.on{background:var(--paper);color:var(--ink);box-shadow:0 2px 6px -2px rgba(20,29,49,.25)}
+.s-btns{display:grid;grid-template-columns:1.6fr 1fr;gap:12px}
+.btn{height:92px;border-radius:16px;display:flex;align-items:center;justify-content:center;gap:12px;font-size:23px;font-weight:700}
+.btn.ink{background:var(--ink);color:#fff}
+.btn.line{background:var(--paper);border:1.5px solid var(--rule2)}
+
+/* 오른쪽: 서류철 탭 + 장부 */
+.right{display:flex;flex-direction:column;min-height:0}
+.tabs{display:flex;gap:6px;height:72px;align-items:flex-end}
+.tabs button{height:68px;padding:0 34px;border-radius:14px 14px 0 0;background:#D3D9E1;color:var(--sub);font-size:22px;font-weight:600}
+.tabs button.on{background:var(--paper);color:var(--ink);font-weight:700}
+.tabs .cnt{margin-left:auto;align-self:center;font:500 19px var(--kr);font-variant-numeric:tabular-nums;color:var(--sub)}
+.sheet{flex:1;min-height:0;background:var(--paper);border-radius:0 18px 18px 18px;box-shadow:0 1px 0 rgba(20,29,49,.05),0 18px 40px -20px rgba(20,29,49,.35);padding:30px 36px 0;position:relative;overflow:hidden}
+.sh-title{display:flex;align-items:baseline;justify-content:space-between}
+.sh-title h2{font:700 32px var(--serif);letter-spacing:.01em}
+.sh-title span{font:500 18px var(--kr);font-variant-numeric:tabular-nums;color:var(--sub)}
+.meta{display:grid;grid-template-columns:1.1fr 1fr .8fr 1fr;border:1px solid var(--rule2);margin-top:14px}
+.meta div{padding:10px 16px;border-left:1px solid var(--rule)}
+.meta div:first-child{border-left:0}
+.meta span{display:block;font-size:14px;color:var(--sub);font-weight:500}
+.meta b{font-size:19px;font-weight:600}
+.meta b.mono{font-weight:500}
+
+table{border-collapse:collapse;width:100%;table-layout:fixed;margin-top:16px}
+th{background:var(--paper2);font-size:15px;font-weight:600;color:var(--sub);border:1px solid var(--rule2);height:37px;line-height:1.2}
+td{height:64px;border-bottom:1px solid var(--rule);font-size:19px;padding:0 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+td.n{text-align:right;font-family:var(--mono);font-size:18.5px}
+td.km{font-weight:600;font-size:20px}
+td.c{text-align:center;padding:0}
+td.date{font-weight:600}
+td.date.today{color:var(--blue)}
+td.date small{display:inline-block;margin-left:6px;font-size:13px;font-weight:700;color:var(--blue);background:#E8EDFA;padding:2px 7px;border-radius:999px;vertical-align:2px}
+td.memo{font-size:18px}
+td.memo.dim{color:var(--faint)}
+td.memo.need{color:var(--seal);font-weight:600}
+td.tent{color:var(--faint)}
+tr.flag td{background:var(--flag)}
+tr.daystart td{border-top:1px solid var(--rule2)}
+.seal{width:56px;height:56px;display:block;margin:0 auto}
+.stamp{width:74px;height:36px;display:block;margin:0 auto}
+.total{position:absolute;left:36px;right:36px;bottom:0;height:66px;background:var(--paper);border-top:3.5px double var(--ink)}
+.total table{margin:0}
+.total td{height:62px;border:0;font-weight:600}
+.fade{position:absolute;left:36px;right:36px;bottom:66px;height:60px;background:linear-gradient(180deg,rgba(255,255,255,0),#fff);pointer-events:none}
+
+/* 결산 */
+.chart{margin-top:18px}
+.r-legend{display:flex;gap:24px;font-size:17px;color:var(--sub);margin-top:10px}
+.r-legend span{display:flex;align-items:center;gap:8px}
+.r-legend i{width:16px;height:16px;border-radius:3px}
+.memo-t{width:100%;border-collapse:collapse;margin-top:22px;table-layout:auto}
+.memo-t th{width:170px;text-align:left;padding:0 18px;background:var(--paper2);height:62px;font-size:17px;border:1px solid var(--rule2)}
+.memo-t td{height:62px;border:1px solid var(--rule2);padding:0 18px;font-size:19px;white-space:normal}
+.memo-t td b{font-family:var(--mono);font-weight:600}
+.big-seal{position:absolute;right:54px;bottom:46px;width:132px;height:132px;transform:rotate(-9deg);opacity:.9}
+
+/* QR 송부 전표 */
+.scrim{position:absolute;inset:0;background:rgba(20,29,49,.42);backdrop-filter:blur(5px);display:grid;place-items:center}
+.slip{width:1000px;background:var(--paper);border-radius:16px;box-shadow:0 40px 100px -30px rgba(10,16,30,.6);display:grid;grid-template-columns:58px 1fr;overflow:hidden}
+.perf{background:var(--paper2);border-right:2px dashed var(--rule2);position:relative}
+.perf i{position:absolute;left:19px;width:20px;height:20px;border-radius:50%;background:#B9C1CC}
+.slip-body{padding:40px 48px 40px 44px}
+.slip-eye{font-size:17px;color:var(--sub);font-weight:600;display:flex;align-items:center;gap:10px}
+.slip-eye .tag{font:600 15px var(--kr);color:var(--seal);border:1.5px solid var(--seal);border-radius:6px;padding:2px 8px}
+.slip h2{font-size:34px;font-weight:700;margin-top:10px;letter-spacing:-.01em}
+.slip p{font-size:20px;color:var(--sub);margin-top:6px}
+.slip-grid{display:grid;grid-template-columns:400px 1fr;gap:40px;margin-top:28px;align-items:start}
+.qrframe{position:relative;width:400px;height:400px;border:1.5px solid var(--rule2);padding:28px}
+.qrframe .m{position:absolute;width:22px;height:22px;border-color:var(--ink);border-style:solid}
+.qrframe .m1{left:-1.5px;top:-1.5px;border-width:4px 0 0 4px}.qrframe .m2{right:-1.5px;top:-1.5px;border-width:4px 4px 0 0}
+.qrframe .m3{left:-1.5px;bottom:-1.5px;border-width:0 0 4px 4px}.qrframe .m4{right:-1.5px;bottom:-1.5px;border-width:0 4px 4px 0}
+.opts{display:grid;gap:10px}
+.opt{display:flex;align-items:center;gap:14px;height:76px;padding:0 18px;border:1.5px solid var(--rule2);border-radius:14px;font-size:21px;font-weight:600}
+.opt i{width:24px;height:24px;border-radius:50%;border:2px solid var(--rule2)}
+.opt.on{border-color:var(--blue);background:#F2F5FD}
+.opt.on i{border:7px solid var(--blue)}
+.opt small{margin-left:auto;font:500 17px var(--kr);color:var(--sub)}
+.linkbox{margin-top:18px;padding:14px 16px;border-radius:12px;background:var(--paper2);font:400 16px var(--mono);color:var(--sub);word-break:break-all}
+.exp{margin-top:8px;font-size:17px;color:var(--sub)}
+.slip-btns{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}
+.slip-btns .btn{height:80px;font-size:21px}
+
+/* 휴대폰 */
+.phone{width:390px;height:844px;overflow:hidden;background:var(--desk);padding:18px 14px}
+.ph-paper{background:var(--paper);border-radius:16px;box-shadow:0 10px 30px -18px rgba(20,29,49,.4);padding:20px 18px;height:100%;overflow:hidden;position:relative}
+.ph-brand{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:700}
+.ph-brand .ic{width:28px;height:28px}
+.ph-brand .tag{margin-left:auto;font-size:12px;color:var(--sub);border:1px solid var(--rule2);border-radius:999px;padding:3px 9px;font-weight:600}
+.phone h1{font:700 27px var(--serif);margin-top:18px}
+.ph-sub{font-size:13px;color:var(--sub);margin-top:2px}
+.ph-meta{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--rule2);margin-top:12px}
+.ph-meta div{padding:7px 10px;border-top:1px solid var(--rule)}
+.ph-meta div:nth-child(-n+2){border-top:0}
+.ph-meta div:nth-child(even){border-left:1px solid var(--rule)}
+.ph-meta span{display:block;font-size:11px;color:var(--sub)}
+.ph-meta b{font-size:13.5px;font-weight:600}
+.ph-g{display:grid;grid-template-columns:.8fr 1fr 1fr 1.1fr;border:1.5px solid var(--ink);margin-top:12px}
+.ph-g div{border-left:1px solid var(--rule2);text-align:center}
+.ph-g div:first-child{border-left:0}
+.ph-g span{display:block;font-size:11px;color:var(--sub);background:var(--paper2);border-bottom:1px solid var(--rule2);padding:5px 0;font-weight:600}
+.ph-g b{display:block;font:600 16px var(--mono);padding:12px 0}
+.ph-g b.big{font-size:22px;color:var(--blue);padding:9px 0}
+.ph-note{font-size:12.5px;color:var(--sub);margin-top:9px;display:flex;gap:6px}
+.ph-note::before{content:"";flex:0 0 6px;height:6px;border-radius:50%;background:var(--seal);margin-top:6px}
+.ph-btns{display:grid;gap:8px;margin-top:12px}
+.ph-btns .btn{height:50px;font-size:15px;border-radius:12px;gap:8px}
+.ph-rows{margin-top:12px;border-top:1.5px solid var(--ink)}
+.ph-row{display:grid;grid-template-columns:54px 1fr 54px 56px;gap:6px;align-items:center;height:52px;border-bottom:1px solid var(--rule);font-size:13px}
+.ph-row .d{font-weight:600}
+.ph-row .m{color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ph-row .k{font:600 15px var(--mono);text-align:right}
+.ph-row .seal{width:40px;height:40px}.ph-row .stamp{width:54px;height:27px}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="ink" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="n"/>
+    <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.1 2.15" result="m"/>
+    <feComposite in="SourceGraphic" in2="m" operator="in" result="s"/>
+    <feDisplacementMap in="s" in2="n" scale="1.6" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="icons.js"></script>
+<script src="data.js"></script>
+<script>
+(() => {
+  const { s, pending: p, f1, f0, dayLabel, CAT, title, groups, daily, profile, holidays, dow } = AJ;
+  const ic = AJ_ICONS.icon;
+  const AR = '<svg class="arr" viewBox="0 0 16 10"><path d="M1 5h13M10 1.5 14 5l-4 3.5"/></svg>';
+  const view = AJ.view;
+
+  // 도장: 업무는 붉은 원형 도장, 출퇴근·개인은 고무인. 운행마다 기울기·농도가 조금씩 다르다.
+  function stamp(t) {
+    if (t.pending) return `<svg class="seal" viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="none" stroke="#AEB6C2" stroke-width="2" stroke-dasharray="4 5"/><text x="32" y="38" text-anchor="middle" font-family="IBM Plex Sans KR" font-weight="600" font-size="16" fill="#97A0AE">대기</text></svg>`;
+    const rot = ((t.id * 37) % 19) - 9, op = (0.84 + ((t.id * 13) % 10) / 70).toFixed(2);
+    if (t.cat === "business") return `<svg class="seal" viewBox="0 0 64 64" style="transform:rotate(${rot}deg);opacity:${op}"><g filter="url(#ink)"><circle cx="32" cy="32" r="27" fill="none" stroke="#CF3A2C" stroke-width="3.2"/><circle cx="32" cy="32" r="22.5" fill="none" stroke="#CF3A2C" stroke-width="1.1"/><text x="32" y="39" text-anchor="middle" font-family="Hahmlet,serif" font-weight="700" font-size="19" fill="#CF3A2C" letter-spacing=".5">업무</text></g></svg>`;
+    const color = t.cat === "commute" ? "#2346B0" : "#8A94A3";
+    return `<svg class="stamp" viewBox="0 0 78 38" style="transform:rotate(${(rot / 2).toFixed(1)}deg);opacity:${op}"><g filter="url(#ink)"><rect x="2" y="2" width="74" height="34" rx="6" fill="none" stroke="${color}" stroke-width="2.6"/><text x="39" y="25.5" text-anchor="middle" font-family="IBM Plex Sans KR" font-weight="700" font-size="17" fill="${color}" letter-spacing="1">${CAT[t.cat]}</text></g></svg>`;
+  }
+
+  const odoNow = AJ.trips[AJ.trips.length - 1].endOdo;
+  const top = `
+  <header class="top">
+    <div class="brand"><span class="ic">${AJ_ICONS.app.b}</span><b>오토장부</b></div>
+    <div class="month"><button aria-label="이전 달">${ic("left", 28, 2.2)}</button><span>2026년 10월</span><button aria-label="다음 달">${ic("right", 28, 2.2)}</button></div>
+    <div class="spacer"></div>
+    <div class="status"><span class="p">P</span>주차 중 · 계기판 <span class="mono">${f1(odoNow)} km</span></div>
+    <button class="plate"><span class="pl">${profile.plate}</span><small>${profile.name}</small></button>
+  </header>`;
+
+  const left = `
+  <section class="left">
+    <div class="card pcard">
+      <div class="w-head"><b>결재 대기</b><span class="n">${s.unconfirmed}</span><span>방금 주차 · ${p.end}</span></div>
+      <div class="w-body">
+        <div>
+          <div class="w-date">${AJ.longDay(p.day)}</div>
+          <div class="w-time">${p.start}–${p.end}</div>
+        </div>
+        <div class="w-km">${f1(p.km)}<small>km</small></div>
+      </div>
+      <div class="w-odo"><span>계기판</span> ${f1(p.startOdo)}${AR}${f1(p.endOdo)} km</div>
+      <div class="w-q">이 운행을 어떻게 기록할까요?</div>
+      <div class="w-btns"><button class="rec">업무<small>추천</small></button><button>출퇴근</button><button>개인</button></div>
+      <div class="w-voice">${ic("mic", 22, 2)}말로 해도 돼요 · <b>“오토장부, 업무로 기록해”</b></div>
+    </div>
+    <div class="card sum">
+      <div class="s-head"><b>10월 결산</b><span>10.1 – 10.${AJ.TODAY}</span></div>
+      <div class="grid4">
+        <div><div class="h">운행</div><div class="v">${s.count}<small>건</small></div></div>
+        <div><div class="h">총 주행 km</div><div class="v">${f1(s.total)}</div></div>
+        <div><div class="h">업무 사용 km</div><div class="v">${f1(s.businessUse)}</div></div>
+        <div><div class="h">업무사용비율</div><div class="v big">${s.ratioPct}<small>%</small></div></div>
+      </div>
+      <ul class="s-notes">
+        <li>결재 대기 ${s.unconfirmed}건은 추천 구분(업무)으로 미리 계산했어요.</li>
+        <li class="red"><span>방문 목적이 빈 업무 운행 <b>${s.missingPurpose}건</b> — 비고를 채우면 증빙에 유리해요.</span></li>
+      </ul>
+    </div>
+    <div class="send">
+      <div class="seg"><button class="on">10월 장부</button><button>2026년 전체 (사업연도)</button></div>
+      <div class="s-btns">
+        <button class="btn ink">${ic("send", 28, 2)}장부 보내기 · 휴대폰/세무사</button>
+        <button class="btn line">${ic("down", 26, 2)}엑셀 저장</button>
+      </div>
+    </div>
+  </section>`;
+
+  const COLS = `<colgroup><col style="width:98px"><col style="width:74px"><col style="width:122px"><col style="width:122px"><col style="width:112px"><col style="width:92px"><col style="width:100px"><col><col style="width:88px"></colgroup>`;
+  const head = `<thead>
+      <tr><th rowspan="2">사용일자</th><th rowspan="2">사용자</th><th colspan="2">계기판 거리 (km)</th><th rowspan="2">주행거리</th><th colspan="2">업무용 사용거리 (km)</th><th rowspan="2">비고</th><th rowspan="2">결재</th></tr>
+      <tr><th>주행 전</th><th>주행 후</th><th>출퇴근</th><th>일반 업무</th></tr></thead>`;
+  const rowsHTML = groups.slice(0, 4).flatMap((g) => g.trips.map((t, i) => {
+    const first = i === 0;
+    const memo = t.pending ? `<td class="memo dim">분류 대기</td>` : t.cat === "business" ? (t.memo ? `<td class="memo">${t.memo}</td>` : `<td class="memo need">목적 적기 ＋</td>`) : `<td class="memo dim">${title(t)}</td>`;
+    const com = t.cat === "commute" ? f1(t.km) : "", bizv = t.cat === "business" ? f1(t.km) : "";
+    return `<tr class="${t.pending ? "flag " : ""}${first ? "daystart" : ""}">
+      <td class="date${t.day === AJ.TODAY ? " today" : ""}">${first ? dayLabel(t.day) : ""}</td>
+      <td>${t.driver}</td>
+      <td class="n">${f1(t.startOdo)}</td><td class="n">${f1(t.endOdo)}</td>
+      <td class="n km">${f1(t.km)}</td>
+      <td class="n">${com}</td><td class="n${t.pending ? " tent" : ""}">${bizv}</td>
+      ${memo}
+      <td class="c">${stamp(t)}</td>
+    </tr>`;
+  })).join("");
+
+  const sheetTop = `
+      <div class="sh-title"><h2>업무용승용차 운행기록부</h2><span>과세기간 2026. 10. 1. – 10. 31.</span></div>
+      <div class="meta">
+        <div><span>상호(법인명)</span><b>${profile.company}</b></div>
+        <div><span>사업자등록번호</span><b class="mono">${profile.bizNo}</b></div>
+        <div><span>차종</span><b>${profile.carModel}</b></div>
+        <div><span>자동차등록번호</span><b>${profile.plate}</b></div>
+      </div>`;
+
+  const ledger = `
+    <div class="sheet">
+      ${sheetTop}
+      <table>${COLS}${head}<tbody>${rowsHTML}</tbody></table>
+      <div class="fade"></div>
+      <div class="total"><table>${COLS}<tbody><tr>
+        <td colspan="2" style="padding-left:10px">10월 합계 · ${s.count}건</td>
+        <td class="n">${f1(AJ.monthStartOdo)}</td><td class="n">${f1(odoNow)}</td>
+        <td class="n km">${f1(s.total)}</td><td class="n">${f1(s.commute)}</td><td class="n">${f1(s.business)}</td>
+        <td colspan="2" style="color:var(--blue);padding-left:14px">업무사용비율 ${s.ratioPct}%</td>
+      </tr></tbody></table></div>
+    </div>`;
+
+  function chartSVG(W, H) {
+    const padL = 40, padB = 34, padT = 8, plotW = W - padL, plotH = H - padB - padT, max = 80, slot = plotW / 31, bw = 16;
+    let g = "";
+    for (let d = 1; d <= 31; d++) if (dow(d) === 0 || dow(d) === 6 || holidays[d])
+      g += `<rect x="${(padL + (d - 1) * slot).toFixed(1)}" y="${padT}" width="${slot.toFixed(1)}" height="${plotH}" fill="#F1F3F7"/>`;
+    for (let v = 20; v <= max; v += 20) {
+      const y = padT + plotH - (v / max) * plotH;
+      g += `<line x1="${padL}" x2="${W}" y1="${y}" y2="${y}" stroke="#DDE2E9" stroke-dasharray="4 5"/><text x="${padL - 10}" y="${y + 5}" text-anchor="end" font-family="IBM Plex Mono" font-size="14" fill="#97A0AE">${v}</text>`;
+    }
+    daily.forEach((d) => {
+      let y = padT + plotH;
+      const x = padL + (d.day - 1) * slot + (slot - bw) / 2;
+      [["business", "#2346B0"], ["commute", "#8CA4E2"], ["personal", "#C5CBD4"]].forEach(([k, c]) => {
+        if (!d[k]) return;
+        const h = (d[k] / max) * plotH;
+        y -= h;
+        g += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw}" height="${(h - 1.5).toFixed(1)}" fill="${c}"/>`;
+      });
+      if ([1, 5, 10, 15, 20, 25, 30].includes(d.day))
+        g += `<text x="${(x + bw / 2).toFixed(1)}" y="${H - 8}" text-anchor="middle" font-family="IBM Plex Mono" font-size="15" font-weight="${d.day === AJ.TODAY ? 600 : 400}" fill="${d.day === AJ.TODAY ? "#2346B0" : "#5A6679"}">${d.day}</text>`;
+    });
+    g += `<line x1="${padL}" x2="${W}" y1="${padT + plotH}" y2="${padT + plotH}" stroke="#141D31" stroke-width="1.5"/>`;
+    return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${g}</svg>`;
+  }
+
+  const report = `
+    <div class="sheet">
+      <div class="sh-title"><h2>10월 운행 결산</h2><span>1일 – ${AJ.TODAY}일 · 하루 평균 ${f1(s.avgPerDay)} km</span></div>
+      <div class="chart">${chartSVG(960, 360)}</div>
+      <div class="r-legend"><span><i style="background:#2346B0"></i>일반 업무</span><span><i style="background:#8CA4E2"></i>출퇴근</span><span><i style="background:#C5CBD4"></i>개인</span><span style="margin-left:auto"><i style="background:#F1F3F7;border:1px solid #DDE2E9"></i>주말·공휴일</span></div>
+      <table class="memo-t">
+        <tr><th>업무사용비율</th><td><b style="color:var(--blue);font-size:22px">${s.ratioPct}%</b> — 업무 <b>${f1(s.businessUse)}</b> km ÷ 전체 <b>${f1(s.total)}</b> km</td></tr>
+        <tr><th>출근한 날</th><td><b>${s.commuteDays}</b>일 · 출퇴근 ${AJ.trips.filter((t) => t.cat === "commute").length}회, <b>${f1(s.commute)}</b> km</td></tr>
+        <tr><th>가장 긴 운행</th><td><b>${f1(s.longest.km)}</b> km · ${s.longest.memo} (${dayLabel(s.longest.day)})</td></tr>
+        <tr><th>자주 간 곳</th><td>${s.places.map(([k, n]) => `${k} <b>${n}</b>회`).join(" · ")}</td></tr>
+        <tr><th>운전한 사람</th><td>${s.drivers.map(([k, n]) => `${k}${k === "이수민" ? "(영업팀)" : ""} <b>${n}</b>건`).join(" · ")}</td></tr>
+        <tr><th>결재 대기</th><td style="color:var(--seal);font-weight:600">${s.unconfirmed}건 — 정하면 세무사님께 바로 보낼 수 있어요</td></tr>
+      </table>
+      <svg class="big-seal" viewBox="0 0 64 64"><g filter="url(#ink)"><rect x="6" y="6" width="52" height="52" rx="5" fill="none" stroke="#CF3A2C" stroke-width="3"/><rect x="10.5" y="10.5" width="43" height="43" rx="2" fill="none" stroke="#CF3A2C" stroke-width="1"/><text x="32" y="29.5" text-anchor="middle" font-family="Hahmlet,serif" font-weight="700" font-size="14" fill="#CF3A2C" letter-spacing="1.5">오토</text><text x="32" y="46" text-anchor="middle" font-family="Hahmlet,serif" font-weight="700" font-size="14" fill="#CF3A2C" letter-spacing="1.5">장부</text></g></svg>
+    </div>`;
+
+  const tabs = (rep) => `<div class="tabs"><button class="${rep ? "" : "on"}">운행 장부</button><button class="${rep ? "on" : ""}">10월 결산</button><span class="cnt">${s.count}건 · ${f1(s.total)} km</span></div>`;
+
+  const qr = `
+    <div class="scrim"><div class="slip">
+      <div class="perf">${[90, 190, 290, 390, 490, 590].map((y) => `<i style="top:${y}px"></i>`).join("")}</div>
+      <div class="slip-body">
+        <div class="slip-eye"><span class="tag">보내기</span>2026년 10월 업무용승용차 운행기록부</div>
+        <h2>휴대폰 카메라로 찍으세요</h2>
+        <p>열린 화면에서 엑셀 파일을 받거나, 링크를 세무사님께 보내면 됩니다.</p>
+        <div class="slip-grid">
+          <div class="qrframe"><span class="m m1"></span><span class="m m2"></span><span class="m m3"></span><span class="m m4"></span>${AJ.qrSVG("#141D31")}</div>
+          <div>
+            <div class="opts">
+              <div class="opt on"><i></i>10월 장부<small>${s.count}건</small></div>
+              <div class="opt"><i></i>2026년 전체<small>사업연도</small></div>
+            </div>
+            <div class="linkbox">${AJ.SHARE_URL.replace("https://", "")}</div>
+            <div class="exp">${AJ.expiry}까지 열려요 (60일). 위치 정보는 담기지 않아요.</div>
+            <div class="slip-btns"><button class="btn line">${ic("down", 24, 2)}엑셀 저장</button><button class="btn ink">닫기</button></div>
+          </div>
+        </div>
+      </div>
+    </div></div>`;
+
+  const phone = `
+    <div class="phone"><div class="ph-paper">
+      <div class="ph-brand"><span class="ic">${AJ_ICONS.app.b}</span>오토장부<span class="tag">공유된 장부</span></div>
+      <h1>10월 운행기록부</h1>
+      <div class="ph-sub">업무용승용차 · 과세기간 2026. 10. 1. – 10. 31.</div>
+      <div class="ph-meta">
+        <div><span>상호(법인명)</span><b>${profile.company}</b></div><div><span>사업자등록번호</span><b>${profile.bizNo}</b></div>
+        <div><span>차종</span><b>${profile.carModel}</b></div><div><span>자동차등록번호</span><b>${profile.plate}</b></div>
+      </div>
+      <div class="ph-g">
+        <div><span>운행</span><b>${s.count}건</b></div><div><span>총 주행</span><b>${f0(s.total)}</b></div>
+        <div><span>업무 사용</span><b>${f0(s.businessUse)}</b></div><div><span>비율</span><b class="big">${s.ratioPct}%</b></div>
+      </div>
+      <div class="ph-note">결재 대기 ${s.unconfirmed}건은 추천 구분으로 계산했어요.</div>
+      <div class="ph-btns">
+        <button class="btn ink">${ic("down", 20, 2.2)}엑셀 파일 내려받기 (국세청 양식)</button>
+        <button class="btn line">${ic("link", 20, 2.2)}세무사님께 보낼 링크 복사</button>
+      </div>
+      <div class="ph-rows">
+        ${AJ.trips.slice(-6).reverse().map((t) => `<div class="ph-row"><span class="d">${dayLabel(t.day)}</span><span class="m">${t.pending ? "분류 대기" : title(t)}</span><span class="k">${f1(t.km)}</span>${stamp(t)}</div>`).join("")}
+      </div>
+    </div></div>`;
+
+  const root = document.getElementById("root");
+  if (view === "phone") { root.innerHTML = phone; return; }
+  const rep = view === "report";
+  root.innerHTML = `<div class="screen">${top}<main class="main">${left}<section class="right">${tabs(rep)}${rep ? report : ledger}</section></main>${view === "qr" ? qr : ""}</div>`;
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>시안 C · 빅 타입</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/wanteddev/wanted-sans@v1.0.3/packages/wanted-sans/fonts/webfonts/variable/split/WantedSansVariable.min.css">
+<style>
+:root{
+  --bg:#EEEFF2; --card:#FFFFFF; --ink:#111317; --sub:#676C76; --faint:#A2A7B0; --line:#E5E7EB;
+  --tan:#FF5A1F; --tan-d:#C4400B; --apri:#FFB48C; --apri-bg:#FFEADF; --stone:#C9CDD3; --stone-bg:#EDEEF1;
+  --f:"Wanted Sans Variable","Wanted Sans","Pretendard Variable","Malgun Gothic",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg)}
+body{font-family:var(--f);color:var(--ink);word-break:keep-all;overflow-wrap:anywhere;-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+h1,h2,h3{text-wrap:balance} p{text-wrap:pretty}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+.ic{display:block}.ic svg{display:block;width:100%;height:100%}
+.arr{display:inline-block;width:.8em;height:.6em;margin:0 .28em;vertical-align:.06em;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;opacity:.8}
+
+.screen{position:relative;width:1704px;height:1204px;overflow:hidden;background:var(--bg)}
+
+/* 상단 줄 */
+.top{height:96px;padding:0 40px;display:flex;align-items:center;gap:26px}
+.brand{display:flex;align-items:center;gap:14px}
+.brand .ic{width:52px;height:52px}
+.brand b{font-size:28px;font-weight:800;letter-spacing:-.03em}
+.month{display:flex;align-items:center;gap:0;margin-left:10px}
+.month button{width:52px;height:64px;display:grid;place-items:center;color:var(--faint)}
+.month span{font-size:27px;font-weight:800;letter-spacing:-.02em;min-width:140px;text-align:center}
+.spacer{flex:1}
+.status{height:56px;padding:0 20px 0 8px;border-radius:28px;background:var(--card);display:flex;align-items:center;gap:12px;font-size:21px;font-weight:700;color:var(--sub)}
+.status .p{width:40px;height:40px;border-radius:20px;background:var(--ink);color:#fff;display:grid;place-items:center;font-size:21px;font-weight:800}
+.status b{color:var(--ink);font-weight:800}
+.plate{height:56px;padding:0 20px 0 6px;border-radius:28px;background:var(--card);display:flex;align-items:center;gap:12px;font-size:21px;font-weight:700;color:var(--sub)}
+.plate .pl{height:44px;padding:0 16px;border-radius:22px;background:var(--ink);color:#fff;font-size:22px;font-weight:800;display:flex;align-items:center;letter-spacing:.02em}
+
+/* 첫머리: 큰 숫자 + 한 달 운행 띠 */
+.hero{position:absolute;left:40px;right:40px;top:98px;height:384px}
+.h-row{display:flex;align-items:flex-end;gap:36px;height:252px}
+.big{font-size:264px;font-weight:880;letter-spacing:-.065em;line-height:.8;margin-left:-8px}
+.big small{font-size:122px;font-weight:800;color:var(--tan);letter-spacing:-.02em;margin-left:6px}
+.cap{padding-bottom:6px}
+.cap h1{font-size:31px;font-weight:850;letter-spacing:-.03em}
+.cap .km{font-size:24px;font-weight:650;color:var(--sub);margin-top:6px}
+.cap .km b{color:var(--ink);font-weight:800}
+.legend{display:flex;gap:22px;margin-top:14px;font-size:19px;font-weight:700;color:var(--sub)}
+.legend span{display:flex;align-items:center;gap:8px}
+.legend i{width:16px;height:16px;border-radius:5px}
+.legend b{color:var(--ink);font-weight:800}
+.chips{margin-left:auto;display:flex;gap:10px;padding-bottom:6px}
+.chip{height:52px;padding:0 20px;border-radius:26px;background:var(--card);display:flex;align-items:center;gap:8px;font-size:20px;font-weight:750}
+.chip b{font-weight:900}
+.chip.warn{color:var(--tan-d);box-shadow:inset 0 0 0 2px rgba(255,90,31,.45)}
+.strip{margin-top:30px;height:58px}
+.ticks{position:relative;height:34px;margin-top:8px;font-size:18px;font-weight:750;color:var(--sub)}
+.ticks span{position:absolute;top:0;padding-left:10px;white-space:nowrap}
+.ticks span::before{content:"";position:absolute;left:0;top:-8px;width:2.5px;height:22px;border-radius:2px;background:var(--faint)}
+.ticks span.now{padding:0 12px 0 0;transform:translateX(-100%);color:var(--tan-d)}
+.ticks span.now::before{left:auto;right:0;background:var(--tan)}
+
+/* 아래 두 단 */
+.lower{position:absolute;left:40px;right:40px;top:492px;bottom:40px;display:grid;grid-template-columns:720px 1fr;gap:32px}
+.leftcol{display:flex;flex-direction:column;gap:20px;min-height:0}
+.ask{flex:1;border-radius:38px;background:var(--tan);color:#fff;padding:40px 44px 40px;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.ask::after{content:"";position:absolute;right:-120px;top:-140px;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.18),rgba(255,255,255,0) 65%)}
+.a-eye{display:flex;align-items:center;gap:10px;font-size:21px;font-weight:750;color:rgba(255,255,255,.88)}
+.a-eye i{width:10px;height:10px;border-radius:50%;background:#fff}
+.a-eye span{margin-left:auto;font-weight:700}
+.ask h2{font-size:58px;font-weight:880;letter-spacing:-.04em;line-height:1.1;margin-top:18px}
+.a-meta{font-size:22px;font-weight:650;color:rgba(255,255,255,.86);margin-top:18px;line-height:1.5}
+.a-btns{margin-top:auto;display:grid;grid-template-columns:1.32fr 1fr 1fr;gap:12px}
+.a-btns button{height:108px;border-radius:28px;font-size:30px;font-weight:850;letter-spacing:-.02em;background:rgba(255,255,255,.14);box-shadow:inset 0 0 0 2px rgba(255,255,255,.5);color:#fff;display:flex;align-items:center;justify-content:center;gap:10px}
+.a-btns button.rec{background:#fff;color:var(--ink);box-shadow:0 14px 30px -14px rgba(120,30,0,.6)}
+.a-btns button.rec small{font-size:16px;font-weight:850;color:#fff;background:var(--tan);padding:5px 10px;border-radius:999px}
+.a-voice{display:flex;align-items:center;gap:10px;margin-top:22px;font-size:20px;font-weight:650;color:rgba(255,255,255,.88)}
+.a-voice b{color:#fff;font-weight:800}
+.acts{flex:0 0 100px;display:grid;grid-template-columns:1.55fr 1fr;gap:14px}
+.btn{border-radius:30px;display:flex;align-items:center;justify-content:center;gap:12px;font-size:25px;font-weight:800;letter-spacing:-.02em}
+.btn.ink{background:var(--ink);color:#fff}
+.btn.white{background:var(--card);color:var(--ink)}
+
+/* 목록 카드 */
+.listcard{border-radius:38px;background:var(--card);padding:24px 28px 0;display:flex;flex-direction:column;min-height:0;overflow:hidden;position:relative}
+.l-top{display:flex;align-items:center;justify-content:space-between;flex:0 0 68px}
+.seg{display:flex;padding:5px;border-radius:34px;background:var(--bg)}
+.seg button{height:58px;padding:0 28px;border-radius:29px;font-size:22px;font-weight:800;color:var(--sub)}
+.seg button.on{background:var(--ink);color:#fff}
+.l-top .cnt{font-size:20px;font-weight:750;color:var(--sub)}
+.l-top .cnt b{color:var(--ink);font-weight:900}
+.list{flex:1;min-height:0;overflow:hidden;margin-top:10px}
+.listcard::after{content:"";position:absolute;left:0;right:0;bottom:0;height:90px;background:linear-gradient(180deg,rgba(255,255,255,0),#fff);pointer-events:none}
+.dhead{height:54px;display:flex;align-items:flex-end;gap:10px;padding:0 4px 8px}
+.dhead b{font-size:26px;font-weight:880;letter-spacing:-.03em}
+.dhead span{font-size:20px;font-weight:700;color:var(--sub)}
+.dhead em{margin-left:auto;font-style:normal;font-size:19px;font-weight:750;color:var(--faint)}
+.row{height:96px;display:grid;grid-template-columns:92px 1fr 118px 120px;gap:14px;align-items:center;padding:0 4px;border-bottom:1px solid var(--line)}
+.row .tm{font-size:28px;font-weight:820;letter-spacing:-.02em;line-height:1}
+.row .tm small{display:block;font-size:17px;font-weight:650;color:var(--faint);margin-top:8px;letter-spacing:0}
+.row .ttl{font-size:25px;font-weight:760;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .ttl.need{color:var(--tan-d)}
+.row .sub{font-size:18px;font-weight:600;color:var(--sub);margin-top:5px;white-space:nowrap}
+.row .km{text-align:right;font-size:33px;font-weight:860;letter-spacing:-.03em}
+.row .km small{font-size:18px;font-weight:700;color:var(--sub);margin-left:3px;letter-spacing:0}
+.tag{height:56px;border-radius:18px;display:grid;place-items:center;font-size:21px;font-weight:820}
+.tag.business{background:var(--tan);color:#fff}
+.tag.commute{background:var(--apri-bg);color:var(--tan-d)}
+.tag.personal{background:var(--stone-bg);color:#4B5059}
+.tag.wait{box-shadow:inset 0 0 0 2.5px var(--tan);color:var(--tan-d);background:repeating-linear-gradient(135deg,rgba(255,90,31,.10) 0 8px,rgba(255,90,31,0) 8px 16px)}
+
+/* 결산: 달력 */
+.cal{margin-top:12px}
+.wk{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;font-size:17px;font-weight:800;color:var(--faint);text-align:left;padding:0 0 8px 12px}
+.cg{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}
+.cell{height:68px;border-radius:18px;background:#F5F6F8;padding:9px 12px;display:flex;flex-direction:column;justify-content:space-between;position:relative}
+.cell .d{font-size:17px;font-weight:800;color:var(--sub)}
+.cell .k{font-size:21px;font-weight:880;letter-spacing:-.02em}
+.cell .h{position:absolute;right:10px;top:10px;font-size:12px;font-weight:800;color:var(--tan-d)}
+.cell.b1{background:#FFD9C7}.cell.b2{background:#FF9A6B}.cell.b3{background:var(--tan)}
+.cell.b2 .d,.cell.b3 .d{color:rgba(255,255,255,.85)}.cell.b2 .k,.cell.b3 .k{color:#fff}
+.cell.p{background:var(--stone-bg)}
+.cell.today{box-shadow:0 0 0 3px var(--ink)}
+.cell.future{background:transparent;box-shadow:inset 0 0 0 2px var(--line)}
+.cell.empty{background:transparent}
+.c-legend{display:flex;gap:18px;align-items:center;margin-top:14px;font-size:16px;font-weight:700;color:var(--sub)}
+.c-legend i{display:inline-block;width:14px;height:14px;border-radius:4px;margin-right:6px;vertical-align:-2px}
+.facts{display:grid;grid-template-columns:.8fr 1.1fr 1.3fr;gap:12px;margin-top:14px}
+.listcard.rep::after{display:none}
+.fact{border-radius:22px;background:var(--bg);padding:14px 18px}
+.fact span{display:block;font-size:16px;font-weight:750;color:var(--sub)}
+.fact b{display:block;font-size:30px;font-weight:880;letter-spacing:-.03em;margin-top:2px}
+.fact b small{font-size:16px;font-weight:700;color:var(--sub);margin-left:4px;letter-spacing:0}
+
+/* QR */
+.scrim{position:absolute;inset:0;background:rgba(17,19,23,.5);backdrop-filter:blur(6px);display:grid;place-items:center}
+.qd{width:1100px;height:660px;border-radius:40px;overflow:hidden;display:grid;grid-template-columns:500px 1fr;box-shadow:0 50px 120px -30px rgba(0,0,0,.55)}
+.qd-l{background:var(--tan);color:#fff;padding:48px 46px;display:flex;flex-direction:column}
+.qd-l .eye{font-size:20px;font-weight:800;color:rgba(255,255,255,.85)}
+.qd-l h2{font-size:46px;font-weight:880;letter-spacing:-.04em;line-height:1.12;margin-top:12px}
+.qd-l ol{list-style:none;margin-top:30px;display:grid;gap:14px;counter-reset:s}
+.qd-l li{display:flex;align-items:center;gap:14px;font-size:21px;font-weight:700;counter-increment:s}
+.qd-l li::before{content:counter(s);flex:0 0 36px;height:36px;border-radius:18px;background:rgba(255,255,255,.2);display:grid;place-items:center;font-size:18px;font-weight:850}
+.qd-l .seg{margin-top:auto;background:rgba(255,255,255,.18);align-self:flex-start}
+.qd-l .seg button{color:rgba(255,255,255,.85)}
+.qd-l .seg button.on{background:#fff;color:var(--tan-d)}
+.qd-r{background:var(--card);padding:44px 48px;display:flex;flex-direction:column;align-items:center}
+.qr{width:392px;height:392px;border-radius:28px;background:var(--card);box-shadow:inset 0 0 0 2px var(--line);padding:22px}
+.qd-r .url{margin-top:22px;font-size:17px;font-weight:650;color:var(--sub);display:flex;align-items:center;gap:8px}
+.qd-r .exp{margin-top:4px;font-size:17px;font-weight:700;color:var(--faint)}
+.qd-btns{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;margin-top:auto}
+.qd-btns .btn{height:84px;font-size:22px}
+.btn.line{box-shadow:inset 0 0 0 2px var(--line)}
+
+/* 휴대폰 */
+.phone{width:390px;height:844px;overflow:hidden;background:var(--bg);padding:16px 14px}
+.ph-top{display:flex;align-items:center;gap:9px;font-size:16px;font-weight:850;padding:4px 4px 0}
+.ph-top .ic{width:30px;height:30px}
+.ph-top .tag2{margin-left:auto;font-size:12px;font-weight:750;color:var(--sub);background:var(--card);border-radius:999px;padding:5px 10px}
+.ph-hero{margin-top:14px;border-radius:28px;background:var(--card);padding:20px 18px 18px}
+.ph-hero .l{font-size:15px;font-weight:850}
+.ph-hero .n{font-size:104px;font-weight:880;letter-spacing:-.065em;line-height:.86;margin-top:8px}
+.ph-hero .n small{font-size:50px;color:var(--tan);font-weight:800;margin-left:3px;letter-spacing:-.02em}
+.ph-hero .k{font-size:13px;font-weight:650;color:var(--sub);margin-top:12px}
+.ph-hero .k b{color:var(--ink);font-weight:800}
+.ph-strip{margin-top:12px;height:22px}
+.ph-chips{display:flex;gap:6px;margin-top:10px}
+.ph-chips span{height:32px;padding:0 12px;border-radius:16px;background:var(--card);display:flex;align-items:center;font-size:13px;font-weight:750}
+.ph-chips span.warn{color:var(--tan-d);box-shadow:inset 0 0 0 1.5px rgba(255,90,31,.45)}
+.ph-btns{display:grid;gap:8px;margin-top:12px}
+.ph-btns .btn{height:54px;font-size:16px;border-radius:18px;gap:8px}
+.ph-list{margin-top:12px;border-radius:24px;background:var(--card);padding:4px 14px}
+.ph-row{display:grid;grid-template-columns:50px 1fr auto 56px;gap:8px;align-items:center;height:58px;border-bottom:1px solid var(--line)}
+.ph-row:last-child{border-bottom:0}
+.ph-row .t{font-size:15px;font-weight:820}
+.ph-row .t small{display:block;font-size:11px;color:var(--faint);font-weight:650}
+.ph-row .m{font-size:14px;font-weight:720;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ph-row .k{font-size:17px;font-weight:860}
+.ph-row .tag{height:30px;border-radius:10px;font-size:12.5px}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="icons.js"></script>
+<script src="data.js"></script>
+<script>
+(() => {
+  const { s, pending: p, f1, f0, dayLabel, CAT, title, groups, daily, profile, holidays, dow, trips } = AJ;
+  const ic = AJ_ICONS.icon;
+  const AR = '<svg class="arr" viewBox="0 0 16 10"><path d="M1 5h13M10 1.5 14 5l-4 3.5"/></svg>';
+  const view = AJ.view;
+  const COLOR = { business: "#FF5A1F", commute: "#FFB48C", personal: "#C9CDD3" };
+
+  // 한 달 운행 띠: 운행 한 건 = 한 칸, 칸 너비 = 그 운행의 거리. 아직 분류 전인 운행은 빗금.
+  function strip(W, H, gap, rad, id) {
+    const avail = W - gap * (trips.length - 1), per = avail / s.total;
+    let x = 0, g = "";
+    const starts = {};
+    trips.forEach((t) => {
+      const w = t.km * per;
+      if (!(t.day in starts)) starts[t.day] = x;
+      g += `<rect x="${x.toFixed(2)}" y="0" width="${w.toFixed(2)}" height="${H}" fill="${t.pending ? `url(#hatch${id})` : COLOR[t.cat]}"/>`;
+      x += w + gap;
+    });
+    return {
+      starts,
+      svg: `<svg width="100%" height="${H}" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
+        <defs><clipPath id="clip${id}"><rect width="${W}" height="${H}" rx="${rad}"/></clipPath>
+        <pattern id="hatch${id}" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="10" height="10" fill="#FFE1D3"/><rect width="5" height="10" fill="#FF5A1F"/></pattern></defs>
+        <g clip-path="url(#clip${id})">${g}</g></svg>`,
+    };
+  }
+
+  const odoNow = trips[trips.length - 1].endOdo;
+  const top = `
+  <header class="top">
+    <div class="brand"><span class="ic">${AJ_ICONS.app.c}</span><b>오토장부</b></div>
+    <div class="month"><button aria-label="이전 달">${ic("left", 28, 2.6)}</button><span>2026년 10월</span><button aria-label="다음 달">${ic("right", 28, 2.6)}</button></div>
+    <div class="spacer"></div>
+    <div class="status"><span class="p">P</span>주차 중 · 계기판 <b>${f1(odoNow)} km</b></div>
+    <button class="plate"><span class="pl">${profile.plate}</span>${profile.name}</button>
+  </header>`;
+
+  const st = strip(1624, 58, 3, 14, "m");
+  const tickDays = [1, 6, 12, 19, 26];
+  const hero = `
+  <section class="hero">
+    <div class="h-row">
+      <div class="big">${s.ratioPct}<small>%</small></div>
+      <div class="cap">
+        <h1>10월 업무사용비율</h1>
+        <div class="km">업무 <b>${f1(s.businessUse)} km</b> / 전체 ${f1(s.total)} km</div>
+        <div class="legend"><span><i style="background:${COLOR.business}"></i>일반 업무 <b>${f1(s.business)}</b></span><span><i style="background:${COLOR.commute}"></i>출퇴근 <b>${f1(s.commute)}</b></span><span><i style="background:${COLOR.personal}"></i>개인 <b>${f1(s.personal)}</b></span></div>
+      </div>
+      <div class="chips">
+        <span class="chip"><span>운행 <b>${s.count}</b>건</span></span>
+        <span class="chip warn">${ic("warn", 22, 2.4)}<span>확인 필요 <b>${s.unconfirmed}</b></span></span>
+        <span class="chip warn">${ic("pencil", 22, 2.4)}<span>목적 빈칸 <b>${s.missingPurpose}</b></span></span>
+      </div>
+    </div>
+    <div class="strip">${st.svg}</div>
+    <div class="ticks">
+      ${tickDays.map((d) => `<span style="left:${st.starts[d].toFixed(0)}px">10.${d}${d === 1 ? ` · ${f1(AJ.monthStartOdo)} km` : ""}</span>`).join("")}
+      <span class="now" style="left:1624px">오늘 · ${f1(odoNow)} km</span>
+    </div>
+  </section>`;
+
+  const leftcol = `
+  <section class="leftcol">
+    <div class="ask">
+      <div class="a-eye"><i></i>방금 주차했어요<span>${p.end}</span></div>
+      <h2>${f1(p.km)}km 달렸어요.<br>어떤 운행이었나요?</h2>
+      <div class="a-meta">10월 ${p.day}일 금 · ${p.start}–${p.end}<br>계기판 ${f1(p.startOdo)}${AR}${f1(p.endOdo)} km</div>
+      <div class="a-btns"><button class="rec">업무<small>추천</small></button><button>출퇴근</button><button>개인</button></div>
+      <div class="a-voice">${ic("mic", 24, 2.2)}말로 해도 돼요 — <b>“오토장부, 업무로 기록해”</b></div>
+    </div>
+    <div class="acts">
+      <button class="btn ink">${ic("qr", 30, 2.2)}장부 보내기 · 휴대폰/세무사</button>
+      <button class="btn white">${ic("down", 28, 2.4)}엑셀 저장</button>
+    </div>
+  </section>`;
+
+  const tagOf = (t) => t.pending ? `<span class="tag wait">업무?</span>` : `<span class="tag ${t.cat}">${CAT[t.cat]}</span>`;
+  const rel = (d) => (d === AJ.TODAY ? "오늘" : d === AJ.TODAY - 1 ? "어제" : dayLabel(d));
+  const list = groups.slice(0, 3).map((g) => `
+      <div class="dhead"><b>${rel(g.day)}</b>${g.day >= AJ.TODAY - 1 ? `<span>${dayLabel(g.day)}</span>` : ""}<em>${f1(g.km)} km</em></div>
+      ${g.trips.map((t) => `
+      <div class="row">
+        <div class="tm">${t.start}<small>${t.end}</small></div>
+        <div style="min-width:0">
+          ${t.pending ? `<div class="ttl need">분류를 기다려요</div>` : t.cat === "business" && !t.memo ? `<div class="ttl need">방문 목적을 적어 주세요</div>` : `<div class="ttl">${title(t)}</div>`}
+          <div class="sub">${f1(t.startOdo)}${AR}${f1(t.endOdo)} · ${t.driver}</div>
+        </div>
+        <div class="km">${f1(t.km)}<small>km</small></div>
+        ${tagOf(t)}
+      </div>`).join("")}`).join("");
+
+  const lTop = (rep) => `<div class="l-top"><div class="seg"><button class="${rep ? "" : "on"}">운행 장부</button><button class="${rep ? "on" : ""}">10월 결산</button></div><span class="cnt"><b>${s.count}</b>건</span></div>`;
+
+  // 결산: 월요일부터 시작하는 달력. 칸 색 = 그날 업무 거리.
+  const lead = (dow(1) + 6) % 7; // 월=0
+  let cells = "";
+  for (let i = 0; i < lead; i++) cells += `<div class="cell empty"></div>`;
+  daily.forEach((d) => {
+    let cls = "";
+    if (d.day > AJ.TODAY) cls = "future";
+    else if (d.business >= 30) cls = "b3";
+    else if (d.business >= 15) cls = "b2";
+    else if (d.business > 0) cls = "b1";
+    else if (d.personal > 0) cls = "p";
+    if (d.day === AJ.TODAY) cls += " today";
+    cells += `<div class="cell ${cls}"><span class="d">${d.day}</span>${holidays[d.day] ? `<span class="h">${holidays[d.day]}</span>` : ""}${d.total ? `<span class="k">${f1(d.total)}</span>` : ""}</div>`;
+  });
+  const report = `
+    <div class="cal">
+      <div class="wk">${["월", "화", "수", "목", "금", "토", "일"].map((w) => `<span>${w}</span>`).join("")}</div>
+      <div class="cg">${cells}</div>
+      <div class="c-legend">하루 업무 거리<span><i style="background:#FFD9C7"></i>15km 미만</span><span><i style="background:#FF9A6B"></i>15–30km</span><span><i style="background:#FF5A1F"></i>30km 이상</span><span><i style="background:#EDEEF1"></i>개인만</span></div>
+      <div class="facts">
+        <div class="fact"><span>출근한 날</span><b>${s.commuteDays}<small>일</small></b></div>
+        <div class="fact"><span>가장 긴 운행</span><b>${f1(s.longest.km)}<small>km · 인천 물류창고</small></b></div>
+        <div class="fact"><span>자주 간 곳</span><b>${s.places[0][1]}<small>회 · ${s.places[0][0]}</small></b></div>
+      </div>
+    </div>`;
+
+  const qrSec = `
+    <div class="scrim"><div class="qd">
+      <div class="qd-l">
+        <div class="eye">장부 보내기</div>
+        <h2>휴대폰 카메라로<br>찍으세요</h2>
+        <ol><li>카메라로 QR 코드를 찍어요</li><li>열린 화면에서 엑셀 파일을 받아요</li><li>링크를 세무사님께 보내요</li></ol>
+        <div class="seg"><button class="on">10월 장부</button><button>2026년 전체</button></div>
+      </div>
+      <div class="qd-r">
+        <div class="qr">${AJ.qrSVG("#111317")}</div>
+        <div class="url">${ic("link", 20, 2.2)}chance-autojangbu.chancec2026.workers.dev/l/Xk3v…</div>
+        <div class="exp">${AJ.expiry}까지 열려요 (60일)</div>
+        <div class="qd-btns"><button class="btn white line">${ic("down", 26, 2.4)}엑셀 저장</button><button class="btn ink">닫기</button></div>
+      </div>
+    </div></div>`;
+
+  const ps = strip(330, 22, 1.5, 7, "p");
+  const phone = `
+    <div class="phone">
+      <div class="ph-top"><span class="ic">${AJ_ICONS.app.c}</span>오토장부<span class="tag2">공유된 장부</span></div>
+      <div class="ph-hero">
+        <div class="l">10월 업무사용비율 · ${profile.plate}</div>
+        <div class="n">${s.ratioPct}<small>%</small></div>
+        <div class="ph-strip">${ps.svg}</div>
+        <div class="k">업무 <b>${f1(s.businessUse)} km</b> / 전체 ${f1(s.total)} km · 운행 ${s.count}건</div>
+      </div>
+      <div class="ph-chips"><span class="warn">확인 필요 ${s.unconfirmed}</span><span class="warn">목적 빈칸 ${s.missingPurpose}</span><span>${profile.company}</span></div>
+      <div class="ph-btns">
+        <button class="btn ink">${ic("down", 20, 2.4)}엑셀 파일 내려받기 (국세청 양식)</button>
+        <button class="btn white">${ic("link", 20, 2.4)}세무사님께 보낼 링크 복사</button>
+      </div>
+      <div class="ph-list">
+        ${trips.slice(-5).reverse().map((t) => `<div class="ph-row"><span class="t">${t.start}<small>${dayLabel(t.day)}</small></span><span class="m">${t.pending ? "분류 대기" : title(t)}</span><span class="k">${f1(t.km)}</span>${tagOf(t)}</div>`).join("")}
+      </div>
+    </div>`;
+
+  const root = document.getElementById("root");
+  if (view === "phone") { root.innerHTML = phone; return; }
+  const rep = view === "report";
+  root.innerHTML = `<div class="screen">${top}${hero}<main class="lower">${leftcol}<section class="listcard${rep ? " rep" : ""}">${lTop(rep)}${rep ? report : `<div class="list">${list}</div>`}</section></main>${view === "qr" ? qrSec : ""}</div>`;
+})();
+</script>
+</body>
+</html>
